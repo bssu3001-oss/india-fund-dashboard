@@ -1,0 +1,65 @@
+name: 대시보드 자동 업데이트
+
+on:
+  schedule:
+    # 한국시간 평일 오전 9시 (UTC 00:00)
+    - cron: '0 0 * * 1-5'
+    # 한국시간 평일 오후 6시 (UTC 09:00)
+    - cron: '0 9 * * 1-5'
+  workflow_dispatch:  # 수동 실행도 가능
+
+concurrency:
+  group: dashboard-update
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 코드 가져오기
+        uses: actions/checkout@v4
+
+      - name: Python 설정
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 패키지 설치
+        run: pip install yfinance anthropic requests
+
+      - name: 설정 파일 생성
+        env:
+          CONFIG_JSON: ${{ secrets.CONFIG_JSON }}
+        run: echo "$CONFIG_JSON" > 설정.json
+
+      - name: 대시보드 업데이트 실행
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          NEWSAPI_KEY: ${{ secrets.NEWSAPI_KEY }}
+          PUBLIC_DATA_API_KEY: ${{ secrets.PUBLIC_DATA_API_KEY }}
+        run: python 업데이트.py
+
+      - name: index.html 복사
+        run: cp 인도펀드_대시보드.html index.html
+
+      - name: Pages 업로드
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+
+  deploy:
+    needs: update
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: GitHub Pages 배포
+        id: deployment
+        uses: actions/deploy-pages@v4

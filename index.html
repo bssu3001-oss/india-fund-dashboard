@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>인도 펀드 대시보드</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f5f5f7;
+  --card-bg: #ffffff;
+  --text: #1d1d1f;
+  --text2: #6e6e73;
+  --text3: #aeaeb2;
+  --border: rgba(0,0,0,0.1);
+  --up: #2d8a4e;
+  --down: #c0392b;
+  --warn-bg: #fff8e1;
+  --warn-text: #BA7517;
+  --buy-bg: #f0faf0;
+  --buy-text: #2d6a0a;
+  --sell-bg: #fff0f0;
+  --sell-text: #9b2020;
+  --info-bg: #e8f4fd;
+  --info-text: #1565c0;
+  --badge-r-bg: #fde8e8;
+  --badge-r: #c0392b;
+  --badge-g-bg: #e8fde8;
+  --badge-g: #2d6a0a;
+  --badge-y-bg: #fdf6e8;
+  --badge-y: #BA7517;
+  --badge-b-bg: #e8f0fe;
+  --badge-b: #1565c0;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1c1c1e;
+    --card-bg: #2c2c2e;
+    --text: #f2f2f7;
+    --text2: #aeaeb2;
+    --text3: #636366;
+    --border: rgba(255,255,255,0.1);
+    --up: #4cd964;
+    --down: #ff453a;
+    --warn-bg: #2a2200;
+    --warn-text: #ffd60a;
+    --buy-bg: #0d2200;
+    --buy-text: #4cd964;
+    --sell-bg: #2a0000;
+    --sell-text: #ff453a;
+    --info-bg: #001a33;
+    --info-text: #64b5f6;
+    --badge-r-bg: #2a0a0a;
+    --badge-r: #ff6b6b;
+    --badge-g-bg: #0a1a0a;
+    --badge-g: #6fcf97;
+    --badge-y-bg: #1a1200;
+    --badge-y: #f2c94c;
+    --badge-b-bg: #001a2a;
+    --badge-b: #56ccf2;
+  }
+}
+body { font-family: -apple-system, 'Apple SD Gothic Neo', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 0; }
+.container { max-width: 480px; margin: 0 auto; padding: 20px 16px 40px; }
+.header { margin-bottom: 24px; }
+.header h1 { font-size: 22px; font-weight: 700; }
+.header p { font-size: 13px; color: var(--text2); margin-top: 4px; }
+.nifty-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--card-bg); border-radius: 20px; padding: 4px 12px; font-size: 13px; font-weight: 500; border: 0.5px solid var(--border); margin-top: 10px; }
+.section-label { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+.metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.metric { background: var(--card-bg); border-radius: 14px; padding: 14px 16px; border: 0.5px solid var(--border); }
+.metric-label { font-size: 12px; color: var(--text2); margin-bottom: 4px; }
+.metric-value { font-size: 22px; font-weight: 600; }
+.metric-sub { font-size: 12px; margin-top: 3px; color: var(--text2); }
+.up { color: var(--up); }
+.down { color: var(--down); }
+table td { padding: 5px 0; border-bottom: 1px solid var(--border); }
+table td:not(:first-child) { text-align: right; }
+.card { background: var(--card-bg); border-radius: 16px; padding: 16px; margin-bottom: 16px; border: 0.5px solid var(--border); }
+.card-title { font-size: 14px; font-weight: 600; margin-bottom: 14px; }
+.loss-section { margin-bottom: 20px; }
+.loss-bar-bg { background: var(--border); border-radius: 6px; height: 10px; overflow: hidden; margin: 8px 0 6px; }
+.loss-bar-fill { height: 100%; border-radius: 6px; background: linear-gradient(90deg, #4cd964, #ffd60a, #ff453a); transition: width 0.6s ease; }
+.loss-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--text3); }
+.nifty-header { background: var(--card-bg); border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 0.5px solid var(--border); }
+.nifty-name { font-size: 13px; color: var(--text2); margin-bottom: 6px; }
+.nifty-price { font-size: 36px; font-weight: 700; letter-spacing: -1px; }
+.nifty-change { font-size: 15px; font-weight: 500; margin-top: 4px; }
+.ohlc-row { display: flex; gap: 0; margin-top: 12px; border-top: 0.5px solid var(--border); padding-top: 12px; }
+.ohlc-item { flex: 1; text-align: center; }
+.ohlc-label { font-size: 11px; color: var(--text3); margin-bottom: 3px; }
+.ohlc-val { font-size: 13px; font-weight: 600; }
+.period-tabs { display: flex; gap: 4px; margin-bottom: 10px; }
+.period-tab { flex: 1; text-align: center; font-size: 12px; font-weight: 500; padding: 7px 0; border-radius: 8px; border: 0.5px solid var(--border); background: var(--bg); color: var(--text2); cursor: pointer; }
+.period-tab.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+.chart-wrap { height: 230px; margin-bottom: 8px; }
+.signal-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 0.5px solid var(--border); }
+.signal-row:last-child { border-bottom: none; }
+.signal-name { font-size: 13px; color: var(--text2); }
+.badge { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 8px; }
+.badge-r { background: var(--badge-r-bg); color: var(--badge-r); }
+.badge-g { background: var(--badge-g-bg); color: var(--badge-g); }
+.badge-y { background: var(--badge-y-bg); color: var(--badge-y); }
+.badge-b { background: var(--badge-b-bg); color: var(--badge-b); }
+.action { border-radius: 12px; padding: 13px 15px; margin-bottom: 10px; }
+.action-hold { background: var(--warn-bg); border-left: 3px solid var(--warn-text); }
+.action-buy { background: var(--buy-bg); border-left: 3px solid var(--buy-text); }
+.action-sell { background: var(--sell-bg); border-left: 3px solid var(--sell-text); }
+.action-title { font-size: 13px; font-weight: 600; margin-bottom: 5px; }
+.action-hold .action-title { color: var(--warn-text); }
+.action-buy .action-title { color: var(--buy-text); }
+.action-sell .action-title { color: var(--sell-text); }
+.action-desc { font-size: 12px; color: var(--text2); line-height: 1.6; }
+.divider { border: none; border-top: 0.5px solid var(--border); margin: 20px 0; }
+.input-row { display: flex; gap: 8px; margin-bottom: 10px; }
+.input-row input { flex: 1; font-size: 13px; padding: 10px 12px; border: 0.5px solid var(--border); border-radius: 10px; background: var(--bg); color: var(--text); outline: none; }
+.input-row input:focus { border-color: #0071e3; }
+.btn { font-size: 13px; padding: 10px 16px; border: 0.5px solid var(--border); border-radius: 10px; background: var(--card-bg); color: var(--text); cursor: pointer; white-space: nowrap; font-weight: 500; }
+.btn:hover { opacity: 0.8; }
+.quick-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.quick-btn { font-size: 11px; padding: 6px 11px; }
+.ai-response { font-size: 13px; color: var(--text); line-height: 1.8; padding: 14px; background: var(--bg); border-radius: 10px; min-height: 60px; white-space: pre-wrap; }
+.footer { font-size: 11px; color: var(--text3); text-align: center; margin-top: 20px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div style="background:#fff8e1;border:1px solid #BA751733;border-radius:18px;padding:18px 20px;margin-bottom:20px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <div>
+        <div style="font-size:11px;font-weight:600;color:#BA7517;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px;">종합 투자 신호</div>
+        <div style="font-size:28px;font-weight:700;color:#BA7517;">📌 보유</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">신호 강도</div>
+        <div style="font-size:24px;font-weight:700;color:#BA7517;">55점</div>
+        <div style="font-size:10px;color:var(--text3);">/ 100점</div>
+      </div>
+    </div>
+    <div style="background:rgba(0,0,0,0.08);border-radius:6px;height:8px;overflow:hidden;margin-bottom:10px;">
+      <div style="width:55%;height:100%;border-radius:6px;background:#BA7517;transition:width 0.6s;"></div>
+    </div>
+    <div style="display:flex;gap:16px;font-size:11px;color:var(--text2);">
+      <span>기술적 <strong style="color:#BA7517;">+1.5</strong></span>
+      <span>매크로 <strong style="color:#BA7517;">+1.0</strong></span>
+      <span>뉴스 <strong style="color:#BA7517;">+0.0</strong></span>
+    </div>
+  </div>
+
+  <div class="section-label">NIFTY 50</div>
+  
+  <div class="nifty-header">
+    <div class="nifty-name">NIFTY 50</div>
+    <div class="nifty-price up">23,622</div>
+    <div class="nifty-change up">▲ +461 &nbsp;(+1.99%)</div>
+    <div class="ohlc-row">
+      <div class="ohlc-item"><div class="ohlc-label">시가</div><div class="ohlc-val">23,412</div></div>
+      <div class="ohlc-item"><div class="ohlc-label">고가</div><div class="ohlc-val up">23,645</div></div>
+      <div class="ohlc-item"><div class="ohlc-label">저가</div><div class="ohlc-val down">23,313</div></div>
+    </div>
+  </div>
+  <div class="period-tabs" id="nifty-tabs">
+    <div class="period-tab active" onclick="switchChart('chartNifty','nifty','d1',this)">일</div>
+    <div class="period-tab" onclick="switchChart('chartNifty','nifty','d5',this)">5일</div>
+    <div class="period-tab" onclick="switchChart('chartNifty','nifty','d30',this)">1개월</div>
+    <div class="period-tab" onclick="switchChart('chartNifty','nifty','mo3',this)">3개월</div>
+    <div class="period-tab" onclick="switchChart('chartNifty','nifty','mo6',this)">6개월</div>
+    <div class="period-tab" onclick="switchChart('chartNifty','nifty','yr1',this)">1년</div>
+  </div>
+  <div class="card" style="padding:12px 12px 10px;">
+    <div class="chart-wrap"><canvas id="chartNifty"></canvas></div>
+    <div style="display:flex;gap:16px;font-size:11px;color:var(--text2);margin-top:4px;">
+      <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:2px;background:#378ADD;display:inline-block;border-radius:1px;"></span>NIFTY 50</span>
+      <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:2px;border-top:2px dashed #E24B4A;display:inline-block;"></span>손절선 23,000</span>
+    </div>
+  </div>
+  <div class="card" style="margin-top:-4px;">
+    <div class="card-title" style="font-size:12px;color:var(--text2);font-weight:500;margin-bottom:10px;">📊 AI 차트 분석 — NIFTY 50</div>
+    <div style="font-size:13px;line-height:2;color:var(--text);">분석 생성 실패: HTTP Error 401: Unauthorized</div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="section-label">SENSEX</div>
+  
+  <div class="nifty-header">
+    <div class="nifty-name">SENSEX</div>
+    <div class="nifty-price up">75,527</div>
+    <div class="nifty-change up">▲ +1,695 &nbsp;(+2.3%)</div>
+    <div class="ohlc-row">
+      <div class="ohlc-item"><div class="ohlc-label">시가</div><div class="ohlc-val">74,709</div></div>
+      <div class="ohlc-item"><div class="ohlc-label">고가</div><div class="ohlc-val up">75,608</div></div>
+      <div class="ohlc-item"><div class="ohlc-label">저가</div><div class="ohlc-val down">74,453</div></div>
+    </div>
+  </div>
+  <div class="period-tabs" id="sensex-tabs">
+    <div class="period-tab active" onclick="switchChart('chartSensex','sensex','d1',this)">일</div>
+    <div class="period-tab" onclick="switchChart('chartSensex','sensex','d5',this)">5일</div>
+    <div class="period-tab" onclick="switchChart('chartSensex','sensex','d30',this)">1개월</div>
+    <div class="period-tab" onclick="switchChart('chartSensex','sensex','mo3',this)">3개월</div>
+    <div class="period-tab" onclick="switchChart('chartSensex','sensex','mo6',this)">6개월</div>
+    <div class="period-tab" onclick="switchChart('chartSensex','sensex','yr1',this)">1년</div>
+  </div>
+  <div class="card" style="padding:12px 12px 10px;">
+    <div class="chart-wrap"><canvas id="chartSensex"></canvas></div>
+    <div style="display:flex;gap:16px;font-size:11px;color:var(--text2);margin-top:4px;">
+      <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:2px;background:#378ADD;display:inline-block;border-radius:1px;"></span>SENSEX</span>
+      
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="section-label">펀드 기준가 이력</div>
+  
+  <div class="nifty-header">
+    <div class="nifty-name">KB스타 NIFTY50 인덱스 (H) S</div>
+    <div class="nifty-price down">786.34</div>
+    <div class="nifty-change down">▼ 6.07 &nbsp;(-0.77%)</div>
+  </div>
+  <div class="period-tabs" id="nav-tabs">
+    <div class="period-tab active" onclick="switchNavChart('mo1',this)">1개월</div>
+    <div class="period-tab" onclick="switchNavChart('mo3',this)">3개월</div>
+    <div class="period-tab" onclick="switchNavChart('mo6',this)">6개월</div>
+    <div class="period-tab" onclick="switchNavChart('yr1',this)">1년</div>
+    <div class="period-tab" onclick="switchNavChart('all',this)">전체</div>
+  </div>
+  <div class="card" style="padding:12px 12px 10px;">
+    <div class="chart-wrap"><canvas id="chartNav"></canvas></div>
+    <div style="display:flex;gap:16px;font-size:11px;color:var(--text2);margin-top:4px;">
+      <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:2px;background:#378ADD;display:inline-block;border-radius:1px;"></span>기준가</span>
+      <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:2px;border-top:2px dashed #E24B4A;display:inline-block;"></span>매수단가 797.6</span>
+    </div>
+  </div>
+  <div class="card" style="margin-top:-4px;">
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <thead>
+        <tr style="color:var(--text2);font-size:11px;border-bottom:1px solid var(--border);">
+          <th style="text-align:left;padding:6px 0;font-weight:500;">기준일</th>
+          <th style="text-align:right;padding:6px 0;font-weight:500;">기준가</th>
+          <th style="text-align:right;padding:6px 0;font-weight:500;">대비</th>
+          <th style="text-align:right;padding:6px 0;font-weight:500;">등락률</th>
+        </tr>
+      </thead>
+      <tbody style="line-height:2;">
+    <tr>
+      <td>06.12</td>
+      <td style="font-weight:600;">786.34</td>
+      <td><span class="down">▼ 6.07</span></td>
+      <td><span class="down">-0.77%</span></td>
+    </tr>
+    <tr>
+      <td>06.11</td>
+      <td style="font-weight:600;">792.41</td>
+      <td><span class="up">▲ 7.37</span></td>
+      <td><span class="up">+0.94%</span></td>
+    </tr>
+    <tr>
+      <td>06.10</td>
+      <td style="font-weight:600;">785.04</td>
+      <td><span class="down">▼ 10.06</span></td>
+      <td><span class="down">-1.27%</span></td>
+    </tr>
+    <tr>
+      <td>06.09</td>
+      <td style="font-weight:600;">795.10</td>
+      <td><span class="down">▼ 2.50</span></td>
+      <td><span class="down">-0.31%</span></td>
+    </tr>
+    <tr>
+      <td>06.08</td>
+      <td style="font-weight:600;">797.60</td>
+      <td><span class="up">▲ 2.16</span></td>
+      <td><span class="up">+0.27%</span></td>
+    </tr>
+    <tr>
+      <td>06.05</td>
+      <td style="font-weight:600;">795.44</td>
+      <td><span class="down">▼ 2.05</span></td>
+      <td><span class="down">-0.26%</span></td>
+    </tr>
+    <tr>
+      <td>06.04</td>
+      <td style="font-weight:600;">797.49</td>
+      <td><span class="down">▼ 9.81</span></td>
+      <td><span class="down">-1.22%</span></td>
+    </tr>
+    <tr>
+      <td>06.02</td>
+      <td style="font-weight:600;">807.30</td>
+      <td><span class="down">▼ 4.57</span></td>
+      <td><span class="down">-0.56%</span></td>
+    </tr>
+    <tr>
+      <td>06.01</td>
+      <td style="font-weight:600;">811.87</td>
+      <td><span class="down">▼ 1.44</span></td>
+      <td><span class="down">-0.18%</span></td>
+    </tr>
+    <tr>
+      <td>05.29</td>
+      <td style="font-weight:600;">813.31</td>
+      <td><span class="down">▼ 0.09</span></td>
+      <td><span class="down">-0.01%</span></td>
+    </tr>
+    <tr>
+      <td>05.28</td>
+      <td style="font-weight:600;">813.40</td>
+      <td><span>—</span></td>
+      <td><span>—</span></td>
+    </tr>
+      </tbody>
+    </table>
+    <div style="margin-top:10px;font-size:11px;color:var(--text3);">* KB앱에서 확인 후 설정.json의 기준가_이력에 최신 값 추가하면 자동 반영돼요</div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="section-label">포트폴리오 현황</div>
+  <div class="metric-grid">
+    <div class="metric">
+      <div class="metric-label">현재 기준가</div>
+      <div class="metric-value">786.34원</div>
+      <div class="metric-sub">매수단가 797.6원</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">현재 손익</div>
+      <div class="metric-value down">-1.41%</div>
+      <div class="metric-sub down">-19.7만원</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">투자금</div>
+      <div class="metric-value">1,400만원</div>
+      <div class="metric-sub">추가 의향 2,800만원</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">손절선까지</div>
+      <div class="metric-value up">-8.7%</div>
+      <div class="metric-sub">718원 이탈 시 손절</div>
+    </div>
+  </div>
+
+  <div class="loss-section">
+    <div class="section-label">손실 여유 (최대 -10%까지 허용)</div>
+    <div class="loss-bar-bg">
+      <div class="loss-bar-fill" style="width: 14.1%"></div>
+    </div>
+    <div class="loss-label">
+      <span>현재 -1.41% 사용</span>
+      <span>한도 -10%</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:10px;">➕ 추가매수 시뮬레이션</div>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <thead>
+        <tr style="color:var(--text2);font-size:11px;border-bottom:1px solid var(--border);">
+          <th style="text-align:left;padding:5px 0;font-weight:500;">시나리오</th>
+          <th style="text-align:right;padding:5px 0;font-weight:500;">평균단가</th>
+          <th style="text-align:right;padding:5px 0;font-weight:500;">현재 손익</th>
+        </tr>
+      </thead>
+      <tbody style="line-height:2.2;">
+        <tr>
+          <td style="color:var(--text2);">현재 (매수 없음)</td>
+          <td style="text-align:right;font-weight:600;">797.6원</td>
+          <td style="text-align:right;" class="down">-1.41%</td>
+        </tr>
+        <tr>
+          <td style="color:var(--text2);">1차 +1,400만원</td>
+          <td style="text-align:right;font-weight:600;">791.93원</td>
+          <td style="text-align:right;" class="down">-0.71%</td>
+        </tr>
+        <tr>
+          <td style="color:var(--text2);">1+2차 +2,800만원</td>
+          <td style="text-align:right;font-weight:600;">790.06원</td>
+          <td style="text-align:right;" class="down">-0.47%</td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="margin-top:8px;font-size:11px;color:var(--text3);">* 추가매수는 현재 기준가(786.34원) 기준으로 계산 / KB앱에서 확인 후 설정.json에 업데이트</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:10px;">🎯 목표수익률 계산기</div>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <thead>
+        <tr style="color:var(--text2);font-size:11px;border-bottom:1px solid var(--border);">
+          <th style="text-align:left;padding:5px 0;font-weight:500;">목표 수익률</th>
+          <th style="text-align:right;padding:5px 0;font-weight:500;">필요 기준가</th>
+          <th style="text-align:right;padding:5px 0;font-weight:500;">필요 NIFTY</th>
+          <th style="text-align:right;padding:5px 0;font-weight:500;">수익금</th>
+        </tr>
+      </thead>
+      <tbody style="line-height:2.2;">
+        <tr style="">
+          <td>+5%</td>
+          <td style="text-align:right;font-weight:600;">837.48원</td>
+          <td style="text-align:right;">25,410</td>
+          <td style="text-align:right;color:var(--up);">+70.0만원</td>
+        </tr><tr style="">
+          <td>+10%</td>
+          <td style="text-align:right;font-weight:600;">877.36원</td>
+          <td style="text-align:right;">26,620</td>
+          <td style="text-align:right;color:var(--up);">+140.0만원</td>
+        </tr><tr style="">
+          <td>+20%</td>
+          <td style="text-align:right;font-weight:600;">957.12원</td>
+          <td style="text-align:right;">29,040</td>
+          <td style="text-align:right;color:var(--up);">+280.0만원</td>
+        </tr><tr style="">
+          <td>+30%</td>
+          <td style="text-align:right;font-weight:600;">1036.88원</td>
+          <td style="text-align:right;">31,460</td>
+          <td style="text-align:right;color:var(--up);">+420.0만원</td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="margin-top:8px;font-size:11px;color:var(--text3);">* 매수단가 797.6원 기준 / NIFTY는 비례 추정치</div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="section-label">주요 이벤트 일정</div>
+  <div class="card" style="margin-bottom:16px;">
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <tbody style="line-height:2.2;"><tr><td style="color:var(--text2);">06-18</td><td>FOMC 금리결정</td><td style="text-align:right;color:var(--down);font-weight:600;">D-5</td></tr><tr><td style="color:var(--text2);">07-23</td><td>인도 연방예산 발표</td><td style="text-align:right;color:var(--text3);">D-40</td></tr><tr><td style="color:var(--text2);">08-05</td><td>RBI 통화정책회의</td><td style="text-align:right;color:var(--text3);">D-53</td></tr><tr><td style="color:var(--text2);">09-17</td><td>FOMC 금리결정</td><td style="text-align:right;color:var(--text3);">D-96</td></tr></tbody>
+    </table>
+    <div style="margin-top:8px;font-size:11px;color:var(--text3);">* 설정.json의 주요이벤트에서 수정할 수 있어요</div>
+  </div>
+  <hr class="divider" style="margin-top:0;">
+
+  <div class="section-label">매매 신호</div>
+  <div class="card">
+    <div class="card-title" style="margin-bottom:8px;">📡 기술적 지표 (자동)</div>
+    <div class="signal-row"><span class="signal-name">RSI (14주)</span><span class="badge badge-b">RSI 55.8 — 중립</span></div><div class="signal-row"><span class="signal-name">이평선 배열</span><span class="badge badge-y">혼조</span></div><div class="signal-row"><span class="signal-name">단기 모멘텀</span><span class="badge badge-y">▼ 0.4% (4주 변화)</span></div><div class="signal-row"><span class="signal-name">변동성</span><span class="badge badge-g">주간 ±0.99% — 안정</span></div><div class="signal-row"><span class="signal-name">52주 가격 위치</span><span class="badge badge-y">52주 고점 대비 -10.3% / 저점 대비 +4.0%</span></div><div class="signal-row"><span class="signal-name">NIFTY 밸류에이션</span><span class="badge badge-b">P/E 20.4 — 적정 수준</span></div><div class="signal-row"><span class="signal-name">손절선 거리</span><span class="badge badge-y">손절선까지 +2.7% — 주의</span></div>
+  </div>
+    <div class="card" style="margin-top:-4px;">
+    <div class="card-title" style="margin-bottom:8px;">🌏 매크로 신호 <span style="font-size:11px;font-weight:400;color:var(--text3);">— 업데이트 실행 시 갱신</span></div>
+    <div style="background:#e8f4fd;border-left:3px solid #1565c0;padding:8px 10px;border-radius:6px;font-size:12px;color:#1565c0;margin-bottom:8px;">🌧 몬순 시즌 (6~9월) — 강수량에 따라 인도 농업·소비·인플레이션 영향 있어요</div>
+    <div class="signal-row">
+      <span class="signal-name">NIFTY50 23,000 지지</span>
+      <span class="badge badge-y">⚠ 23,622 — 지지선 근접</span>
+    </div>
+    <div class="signal-row">
+      <span class="signal-name">루피/달러<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span> <span style="font-size:10px;color:var(--text3);">(환헤지 펀드·직접 영향 낮음)</span></span>
+      <span class="badge badge-r">₹95.1 — 루피 급락</span>
+    </div>
+    <div class="signal-row">
+      <span class="signal-name">India VIX<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span> <span style="font-size:10px;color:var(--text3);">(인도 공포지수)</span></span>
+      <span class="badge badge-g">India VIX 14.72 — 안정</span>
+    </div>
+    <div class="signal-row">
+      <span class="signal-name">공포지수 VIX<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span> <span style="font-size:10px;color:var(--text3);">(미국)</span></span>
+      <span class="badge badge-g">US VIX 17.68 — 안정</span>
+    </div>
+    <div class="signal-row">
+      <span class="signal-name">브렌트유<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span>
+      <span class="badge badge-y">$87.3 보통</span>
+    </div>
+    <div class="signal-row" title=" Record foreign outflows cap India stock rally in 2025; selling may ease next year |  FII Inflows vs. Outflows: Understanding Market Sentiment for AMEX:SPY by GlobalWolfStreet |  FII flows 2026: Foreign investors extend selling streak in early sessions; analysts expect turnaround lat"><span class="signal-name">FII 외국인 자금<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span><span class="badge badge-b">분석 중</span></div>
+    <div class="signal-row" title=" What Are FII and DII In Indian Stock Market? |  DII inflows hit a peak at ₹4.3 trillion in the first half of 2026 |  DIIs invest Rs 58,000 crore in eight sessions as markets slide on West Asia tensions"><span class="signal-name">DII 국내기관 자금<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span><span class="badge badge-b">분석 중</span></div>
+    <div class="signal-row" title=" India's cenbank cuts growth outlook, raises inflation forecast as it keeps rates steady at 5.25% |  Iran war puts RBI in razor-edge policy bind over inflation, growth and rupee |  India Rate-Hike Bets Build as Pricey Oil, Weak Rupee Stoke Inflation Risks"><span class="signal-name">RBI 금리<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span><span class="badge badge-b">분석 중</span></div>
+    <div class="signal-row" title=" Manufacturing drags down India's private sector activity in May: Flash PMI |  PMI watch: India's services growth eases in February as demand softens, costs rise |  Private Sector Growth Hits 10-month Low In December"><span class="signal-name">인도 PMI<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span><span class="badge badge-b">분석 중</span></div>
+    <div class="signal-row" title=" Consumer inflation rises to 3.93% in May, higher costs from West Asia war get passed on to households |  India CPI inflation likely fell to multi-year low of 0.48% in October: Reuters poll |  Inflation heat returns in May on climbing food prices"><span class="signal-name">인도 CPI<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span><span class="badge badge-b">분석 중</span></div>
+    <div class="signal-row" title=" India-US trade deal can be finalised after tariff probe concludes, official says |  Shifting trade relations: India-US trade ties are more strategically balanced |  Donald Trump confident of India trade deal, calls Narendra Modi a 'great friend'"><span class="signal-name">미-인도 무역<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span><span class="badge badge-b">분석 중</span></div>
+    <div class="signal-row" title=" ‘The Old Game Is Back’: Oil Is a Potent Geopolitical Tool Again |  How to understand the Iran war market swings: A geopolitical put option |  How is the conflict in the Middle East affecting developing economies?"><span class="signal-name">중동 정세<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span><span class="badge badge-b">분석 중</span></div>
+    <div class="signal-row">
+      <span class="signal-name">미국 연준 금리<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span>
+      <span class="badge badge-b">분석 중</span>
+    </div>
+    <div style="margin-top:10px;font-size:11px;color:var(--text3);">* 뉴스 항목은 마우스를 올리면 원문 헤드라인을 볼 수 있어요</div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="section-label">액션 가이드</div>
+  
+  <div class="action action-hold">
+    <div class="action-title">📌 지금 — 보유 유지</div>
+    <div class="action-desc">데이터 수집 중입니다. 다시 열어주세요.</div>
+  </div>
+  <div class="action action-buy">
+    <div class="action-title">🟢 1차 매수 조건</div>
+    <div class="action-desc">NIFTY50 23,000 지지 유지 + FII 순매수 전환 확인 시 → 1,400만원 투입</div>
+  </div>
+  <div class="action action-buy">
+    <div class="action-title">🟢 2차 매수 조건</div>
+    <div class="action-desc">NIFTY50 24,000 회복 + 추세 확인 시 → 1,400만원 추가</div>
+  </div>
+  <div class="action action-sell">
+    <div class="action-title">🔴 손절 조건</div>
+    <div class="action-desc">펀드 기준가 718원 이탈 OR NIFTY50 23,000 붕괴 시 → 전량 매도 검토</div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="section-label">AI 매매 판단 질문</div>
+  <div class="card">
+    <div class="card-title">지금 상황 물어보기</div>
+    <div class="input-row">
+      <input type="text" id="ai-q" placeholder="예: 지금 사도 될까요?">
+      <button class="btn" onclick="askAI()">분석 ↗</button>
+    </div>
+    <div class="quick-btns">
+      <button class="btn quick-btn" onclick="setQ('지금 1차 매수 타이밍인가요?')">1차 매수?</button>
+      <button class="btn quick-btn" onclick="setQ('지금 보유가 맞나요 매도해야 하나요?')">보유 vs 매도</button>
+      <button class="btn quick-btn" onclick="setQ('이번 주 인도 시장 핵심 이슈가 뭔가요?')">이번 주 이슈</button>
+    </div>
+    <div class="ai-response" id="ai-resp">질문을 입력하거나 위 버튼을 눌러보세요.</div>
+  </div>
+
+  <div class="footer">마지막 업데이트: 2026.06.13 12:21</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const isDark = matchMedia('(prefers-color-scheme: dark)').matches;
+const tC = isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.4)';
+const gC = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)';
+
+function calcMA(prices, n) {
+  return prices.map((_, i) => {
+    if (i < n - 1) return null;
+    const slice = prices.slice(i - n + 1, i + 1);
+    return Math.round(slice.reduce((a, b) => a + b, 0) / n);
+  });
+}
+
+// 기간별 이평 설정
+const MA_CONFIG = {
+  d1:  [{n:5, color:'#FF6B6B',label:'MA5'}, {n:20,color:'#FFA500',label:'MA20'}, {n:60,color:'#9B59B6',label:'MA60'}],
+  d5:  [{n:3, color:'#FF6B6B',label:'MA3'}, {n:5, color:'#FFA500',label:'MA5'},  {n:10,color:'#9B59B6',label:'MA10'}],
+  d30: [{n:5, color:'#FF6B6B',label:'MA5'}, {n:10,color:'#FFA500',label:'MA10'}, {n:20,color:'#9B59B6',label:'MA20'}],
+  mo3: [{n:4, color:'#FF6B6B',label:'MA4주'},{n:8, color:'#FFA500',label:'MA8주'},{n:13,color:'#9B59B6',label:'MA13주'}],
+  mo6: [{n:5, color:'#FF6B6B',label:'MA5주'},{n:13,color:'#FFA500',label:'MA13주'},{n:26,color:'#9B59B6',label:'MA26주'}],
+  yr1: [{n:5, color:'#FF6B6B',label:'MA5주'},{n:13,color:'#FFA500',label:'MA13주'},{n:26,color:'#9B59B6',label:'MA26주'},{n:52,color:'#888',label:'MA52주'}],
+};
+let currentPeriodKey = 'd1';
+
+function makeDatasets(prices, periodKey, name, sl) {
+  const n = prices.length;
+  const maCfg = MA_CONFIG[periodKey] || MA_CONFIG.yr1;
+  const periods = maCfg.filter(p => p.n < n);
+  const maDatasets = periods.map(p => ({
+    label: p.label, data: calcMA(prices, p.n),
+    borderColor: p.color, borderWidth: 1.2,
+    pointRadius: 0, fill: false, tension: 0.3, spanGaps: false
+  }));
+  const datasets = [
+    { label: name || '지수', data: prices, borderColor: '#378ADD',
+       backgroundColor: 'rgba(55,138,221,0.06)', borderWidth: 2,
+       pointRadius: 0, pointHoverRadius: 4, fill: true, tension: 0.3 },
+    ...maDatasets
+  ];
+  if (sl != null) {
+    datasets.splice(1, 0, {
+      label: '손절선', data: Array(n).fill(sl), borderColor: '#E24B4A',
+      borderWidth: 1.2, borderDash: [5,4], pointRadius: 0, fill: false
+    });
+  }
+  return datasets;
+}
+
+function initChart(canvasId, pdata, initKey) {
+  return new Chart(document.getElementById(canvasId), {
+    type: 'line',
+    data: { labels: pdata[initKey].labels, datasets: makeDatasets(pdata[initKey].prices, initKey, pdata.name, pdata.sl) },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          display: true, position: 'top',
+          labels: { color: tC, font: { size: 10 }, boxWidth: 20, padding: 8,
+                     filter: item => item.text !== '손절선' }
+        },
+        tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + (ctx.parsed.y ? ctx.parsed.y.toLocaleString() : '-') } }
+      },
+      scales: {
+        x: { ticks: { color: tC, font: { size: 10 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 8 }, grid: { color: gC } },
+        y: { ticks: { color: tC, font: { size: 10 }, callback: v => v.toLocaleString() }, grid: { color: gC } }
+      }
+    }
+  });
+}
+
+function switchChart(canvasId, prefix, key, el) {
+  document.querySelectorAll(`#${prefix}-tabs .period-tab`).forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  const c = window._charts[canvasId];
+  c.inst.data.labels = c.data[key].labels;
+  c.inst.data.datasets = makeDatasets(c.data[key].prices, key, c.data.name, c.data.sl);
+  c.inst.update();
+}
+
+const API_KEY = atob("c2stYW50LWFwaTAzLTFmMGRrNzA5eHo2WW8wUFBYbmYteTNmUDhjNzVBZGtZYWg1Z1k2RjhPbDA5TE1jWThPMWdIZVZ3UDY1YXJhc2RMTEwtOXVyTHpqZXlocG4xRmlSRUVRLVY5eFVOZ0FB");
+
+function setQ(q) { document.getElementById('ai-q').value = q; }
+
+async function askAI() {
+  const q = document.getElementById('ai-q').value.trim();
+  if (!q) return;
+  if (!API_KEY) {
+    document.getElementById('ai-resp').textContent = '설정.json 파일에 anthropic_api_key 를 입력해주세요.';
+    return;
+  }
+  const box = document.getElementById('ai-resp');
+  box.textContent = '분석 중...';
+
+  const ctx = `당신은 10년차 인도 펀드 매니저입니다.
+포트폴리오: KB스타 NIFTY50 인덱스 (H) S
+매수 평균단가: 797.6원 / 현재 기준가: 786.34원 / 손익: -1.41%
+투자금: 1,400만원 / 추가 투자 예정: 2,800만원
+손절 기준: 기준가 718원 이탈
+
+[실시간 시장 데이터 — 2026.06.13 12:21 기준]
+- NIFTY50: 23,622 (▲1.99%)
+- USD/INR: ₹95.1 / India VIX: 14.72 / US VIX: 17.68
+- 브렌트유: $87.3 / NIFTY P/E: 20.4
+- FII: 분석 중 / DII: 분석 중
+- RBI 금리: 분석 중 / 미국 연준: 분석 중
+- 인도 CPI: 분석 중 / PMI: 분석 중
+- 미-인도 무역: 분석 중 / 중동: 분석 중
+
+3~5문장, 한국어, 마지막에 "이 답변은 참고용입니다" 짧게 명시.`;
+
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': API_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 600,
+        system: ctx,
+        messages: [{ role: 'user', content: q }]
+      })
+    });
+    const d = await r.json();
+    box.textContent = d.content?.[0]?.text ?? '응답 없음';
+  } catch(e) {
+    box.textContent = '오류가 발생했어요. 다시 시도해주세요.';
+  }
+}
+
+document.getElementById('ai-q').addEventListener('keydown', e => {
+  if (e.key === 'Enter') askAI();
+});
+
+// 차트 초기화 (Chart.js 로딩 완료 후 실행)
+window._charts = {};
+const PDATA_chartNifty = {"name": "NIFTY 50", "sl": 23000, "d1": {"labels": ["09:15", "09:20", "09:25", "09:30", "09:35", "09:40", "09:45", "09:50", "09:55", "10:00", "10:05", "10:10", "10:15", "10:20", "10:25", "10:30", "10:35", "10:40", "10:45", "10:50", "10:55", "11:00", "11:05", "11:10", "11:15", "11:20", "11:25", "11:30", "11:35", "11:40", "11:45", "11:50", "11:55", "12:00", "12:05", "12:10", "12:15", "12:20", "12:25", "12:30", "12:35", "12:40", "12:45", "12:50", "12:55", "13:00", "13:05", "13:10", "13:15", "13:20", "13:25", "13:30", "13:35", "13:40", "13:45", "13:50", "13:55", "14:00", "14:05", "14:10", "14:15", "14:20", "14:25", "14:30", "14:35", "14:40", "14:45", "14:50", "14:55", "15:00", "15:05", "15:10", "15:15", "15:20", "15:25"], "prices": [23444, 23423, 23401, 23407, 23396, 23370, 23379, 23358, 23346, 23342, 23347, 23342, 23326, 23355, 23345, 23349, 23354, 23349, 23345, 23354, 23358, 23353, 23355, 23378, 23361, 23365, 23357, 23366, 23368, 23374, 23385, 23381, 23378, 23379, 23363, 23347, 23346, 23365, 23365, 23350, 23342, 23321, 23317, 23327, 23325, 23331, 23334, 23336, 23343, 23331, 23388, 23426, 23461, 23474, 23492, 23489, 23507, 23519, 23509, 23527, 23535, 23534, 23547, 23548, 23568, 23569, 23588, 23605, 23608, 23635, 23620, 23621, 23629, 23622, 23631]}, "d5": {"labels": ["6/8", "6/9", "6/10", "6/11", "6/12"], "prices": [23123, 23242, 23214, 23161, 23622]}, "d30": {"labels": ["5/12", "5/13", "5/14", "5/15", "5/18", "5/19", "5/20", "5/21", "5/22", "5/25", "5/26", "5/27", "5/29", "6/1", "6/2", "6/3", "6/4", "6/5", "6/8", "6/9", "6/10", "6/11", "6/12"], "prices": [23379, 23412, 23689, 23643, 23649, 23618, 23659, 23654, 23719, 24031, 23913, 23907, 23547, 23382, 23483, 23405, 23416, 23366, 23123, 23242, 23214, 23161, 23622]}, "mo3": {"labels": ["3/9", "3/16", "3/23", "3/30", "4/6", "4/13", "4/20", "4/27", "5/4", "5/11", "5/18", "5/25", "6/1", "6/8"], "prices": [23151, 23114, 22819, 22713, 24050, 24353, 23897, 23997, 24176, 23643, 23719, 23547, 23366, 23622]}, "mo6": {"labels": ["12/8", "12/15", "12/22", "12/29", "1/5", "1/12", "1/19", "1/26", "2/2", "2/9", "2/16", "2/23", "3/2", "3/9", "3/16", "3/23", "3/30", "4/6", "4/13", "4/20", "4/27", "5/4", "5/11", "5/18", "5/25", "6/1", "6/8", "6/12"], "prices": [26046, 25966, 26042, 26328, 25683, 25694, 25048, 24825, 25693, 25471, 25571, 25178, 24450, 23151, 23114, 22819, 22713, 24050, 24353, 23897, 23997, 24176, 23643, 23719, 23547, 23366, 23622, 23622]}, "yr1": {"labels": ["6/9", "6/16", "6/23", "6/30", "7/7", "7/14", "7/21", "7/28", "8/4", "8/11", "8/18", "8/25", "9/1", "9/8", "9/15", "9/22", "9/29", "10/6", "10/13", "10/20", "10/27", "11/3", "11/10", "11/17", "11/24", "12/1", "12/8", "12/15", "12/22", "12/29", "1/5", "1/12", "1/19", "1/26", "2/2", "2/9", "2/16", "2/23", "3/2", "3/9", "3/16", "3/23", "3/30", "4/6", "4/13", "4/20", "4/27", "5/4", "5/11", "5/18", "5/25", "6/1", "6/8", "6/12"], "prices": [24718, 25112, 25637, 25461, 25149, 24968, 24837, 24565, 24363, 24631, 24870, 24426, 24741, 25114, 25327, 24654, 24894, 25285, 25709, 25795, 25722, 25492, 25910, 26068, 26202, 26186, 26046, 25966, 26042, 26328, 25683, 25694, 25048, 24825, 25693, 25471, 25571, 25178, 24450, 23151, 23114, 22819, 22713, 24050, 24353, 23897, 23997, 24176, 23643, 23719, 23547, 23366, 23622, 23622]}};
+const PDATA_chartSensex = {"name": "SENSEX", "sl": null, "d1": {"labels": ["09:15", "09:20", "09:25", "09:30", "09:35", "09:40", "09:45", "09:50", "09:55", "10:00", "10:05", "10:10", "10:15", "10:20", "10:25", "10:30", "10:35", "10:40", "10:45", "10:50", "10:55", "11:00", "11:05", "11:10", "11:15", "11:20", "11:25", "11:30", "11:35", "11:40", "11:45", "11:50", "11:55", "12:00", "12:05", "12:10", "12:15", "12:20", "12:25", "12:30", "12:35", "12:40", "12:45", "12:50", "12:55", "13:00", "13:05", "13:10", "13:15", "13:20", "13:25", "13:30", "13:35", "13:40", "13:45", "13:50", "13:55", "14:00", "14:05", "14:10", "14:15", "14:20", "14:25", "14:30", "14:35", "14:40", "14:45", "14:50", "14:55", "15:00", "15:05", "15:10", "15:15", "15:20", "15:25"], "prices": [74828, 74775, 74704, 74725, 74711, 74614, 74655, 74594, 74567, 74517, 74543, 74531, 74462, 74557, 74547, 74553, 74563, 74551, 74552, 74576, 74589, 74575, 74579, 74645, 74590, 74613, 74604, 74638, 74644, 74669, 74693, 74682, 74676, 74670, 74625, 74575, 74559, 74623, 74622, 74566, 74544, 74485, 74469, 74508, 74504, 74528, 74528, 74528, 74563, 74518, 74687, 74814, 74948, 74988, 75051, 75025, 75090, 75134, 75098, 75163, 75214, 75207, 75268, 75272, 75335, 75352, 75422, 75492, 75495, 75570, 75520, 75533, 75525, 75525, 75527]}, "d5": {"labels": ["6/8", "6/9", "6/10", "6/11", "6/12"], "prices": [73524, 73918, 73983, 73832, 75527]}, "d30": {"labels": ["5/12", "5/13", "5/14", "5/15", "5/18", "5/19", "5/20", "5/21", "5/22", "5/25", "5/26", "5/27", "5/29", "6/1", "6/2", "6/3", "6/4", "6/5", "6/8", "6/9", "6/10", "6/11", "6/12"], "prices": [74559, 74608, 75398, 75237, 75315, 75200, 75318, 75183, 75415, 76488, 76009, 75867, 74775, 74267, 74649, 74346, 74360, 74243, 73524, 73918, 73983, 73832, 75527]}, "mo3": {"labels": ["3/9", "3/16", "3/23", "3/30", "4/6", "4/13", "4/20", "4/27", "5/4", "5/11", "5/18", "5/25", "6/1", "6/8"], "prices": [74563, 74532, 73583, 73319, 77550, 78493, 76664, 76913, 77328, 75237, 75415, 74775, 74243, 75527]}, "mo6": {"labels": ["12/8", "12/15", "12/22", "12/29", "1/5", "1/12", "1/19", "1/26", "2/2", "2/9", "2/16", "2/23", "3/2", "3/9", "3/16", "3/23", "3/30", "4/6", "4/13", "4/20", "4/27", "5/4", "5/11", "5/18", "5/25", "6/1", "6/8", "6/12"], "prices": [85267, 84929, 85041, 85762, 83576, 83570, 81537, 80722, 83580, 82626, 82814, 81287, 78918, 74563, 74532, 73583, 73319, 77550, 78493, 76664, 76913, 77328, 75237, 75415, 74775, 74243, 75527, 75527]}, "yr1": {"labels": ["6/9", "6/16", "6/23", "6/30", "7/7", "7/14", "7/21", "7/28", "8/4", "8/11", "8/18", "8/25", "9/1", "9/8", "9/15", "9/22", "9/29", "10/6", "10/13", "10/20", "10/27", "11/3", "11/10", "11/17", "11/24", "12/1", "12/8", "12/15", "12/22", "12/29", "1/5", "1/12", "1/19", "1/26", "2/2", "2/9", "2/16", "2/23", "3/2", "3/9", "3/16", "3/23", "3/30", "4/6", "4/13", "4/20", "4/27", "5/4", "5/11", "5/18", "5/25", "6/1", "6/8", "6/12"], "prices": [81118, 82408, 84058, 83432, 82500, 81757, 81463, 80599, 79857, 80597, 81306, 79809, 80710, 81904, 82626, 80426, 81207, 82500, 83952, 84211, 83938, 83216, 84562, 85231, 85706, 85712, 85267, 84929, 85041, 85762, 83576, 83570, 81537, 80722, 83580, 82626, 82814, 81287, 78918, 74563, 74532, 73583, 73319, 77550, 78493, 76664, 76913, 77328, 75237, 75415, 74775, 74243, 75527, 75527]}};
+window._charts['chartNifty'] = {inst: initChart('chartNifty', PDATA_chartNifty, 'd1'), data: PDATA_chartNifty};
+window._charts['chartSensex'] = {inst: initChart('chartSensex', PDATA_chartSensex, 'd1'), data: PDATA_chartSensex};
+
+// 기준가 차트 (이평선 포함)
+const PDATA_chartNav = {"name": "기준가", "sl": 797.6, "mo1": {"labels": ["05.28", "05.29", "06.01", "06.02", "06.04", "06.05", "06.08", "06.09", "06.10", "06.11", "06.12"], "prices": [813.4, 813.31, 811.87, 807.3, 797.49, 795.44, 797.6, 795.1, 785.04, 792.41, 786.34]}, "mo3": {"labels": ["05.28", "05.29", "06.01", "06.02", "06.04", "06.05", "06.08", "06.09", "06.10", "06.11", "06.12"], "prices": [813.4, 813.31, 811.87, 807.3, 797.49, 795.44, 797.6, 795.1, 785.04, 792.41, 786.34]}, "mo6": {"labels": ["05.28", "05.29", "06.01", "06.02", "06.04", "06.05", "06.08", "06.09", "06.10", "06.11", "06.12"], "prices": [813.4, 813.31, 811.87, 807.3, 797.49, 795.44, 797.6, 795.1, 785.04, 792.41, 786.34]}, "yr1": {"labels": ["05.28", "05.29", "06.01", "06.02", "06.04", "06.05", "06.08", "06.09", "06.10", "06.11", "06.12"], "prices": [813.4, 813.31, 811.87, 807.3, 797.49, 795.44, 797.6, 795.1, 785.04, 792.41, 786.34]}, "all": {"labels": ["05.28", "05.29", "06.01", "06.02", "06.04", "06.05", "06.08", "06.09", "06.10", "06.11", "06.12"], "prices": [813.4, 813.31, 811.87, 807.3, 797.49, 795.44, 797.6, 795.1, 785.04, 792.41, 786.34]}};
+window._charts['chartNav'] = {inst: initChart('chartNav', PDATA_chartNav, 'yr1'), data: PDATA_chartNav};
+
+function switchNavChart(key, el) {
+  document.querySelectorAll('#nav-tabs .period-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  const c = window._charts['chartNav'];
+  c.inst.data.labels = c.data[key].labels;
+  c.inst.data.datasets = makeDatasets(c.data[key].prices, 'd30', c.data.name, c.data.sl);
+  c.inst.update();
+}
+</script>
+</body>
+</html>
