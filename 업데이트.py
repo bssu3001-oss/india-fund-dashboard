@@ -1155,8 +1155,6 @@ def build_html(nifty, sensex, metrics, api_key, updated_at, nifty_analysis, sens
   </div>
   <hr class="divider" style="margin-top:0;">"""
 
-    api_key_js = json.dumps(api_key)
-
     html = f"""<!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -1407,6 +1405,13 @@ table td:not(:first-child) {{ text-align: right; }}
   <div class="section-label">AI 매매 판단 질문</div>
   <div class="card">
     <div class="card-title">지금 상황 물어보기</div>
+    <div id="key-setup" style="margin-bottom:10px;display:none;">
+      <div style="font-size:12px;color:var(--text3);margin-bottom:6px;">Anthropic API 키를 입력하면 저장됩니다 (이 기기에만)</div>
+      <div class="input-row">
+        <input type="password" id="api-key-input" placeholder="sk-ant-...">
+        <button class="btn" onclick="saveKey()">저장</button>
+      </div>
+    </div>
     <div class="input-row">
       <input type="text" id="ai-q" placeholder="예: 지금 사도 될까요?">
       <button class="btn" onclick="askAI()">분석 ↗</button>
@@ -1507,15 +1512,26 @@ function switchChart(canvasId, prefix, key, el) {{
   c.inst.update();
 }}
 
-const API_KEY = {api_key_js};
+function getKey() {{ return localStorage.getItem('anthropic_api_key') || ''; }}
+function saveKey() {{
+  const k = document.getElementById('api-key-input').value.trim();
+  if (!k) return;
+  localStorage.setItem('anthropic_api_key', k);
+  document.getElementById('api-key-input').value = '';
+  document.getElementById('key-setup').style.display = 'none';
+  document.getElementById('ai-resp').textContent = 'API 키가 저장됐어요. 질문을 입력해보세요.';
+}}
+if (!getKey()) document.getElementById('key-setup').style.display = 'block';
 
 function setQ(q) {{ document.getElementById('ai-q').value = q; }}
 
 async function askAI() {{
   const q = document.getElementById('ai-q').value.trim();
   if (!q) return;
+  const API_KEY = getKey();
   if (!API_KEY) {{
-    document.getElementById('ai-resp').textContent = '설정.json 파일에 anthropic_api_key 를 입력해주세요.';
+    document.getElementById('key-setup').style.display = 'block';
+    document.getElementById('ai-resp').textContent = 'API 키를 먼저 입력해주세요.';
     return;
   }}
   const box = document.getElementById('ai-resp');
