@@ -1083,13 +1083,6 @@ def build_html(nifty, sensex, metrics, api_key, updated_at, nifty_analysis, sens
     score_pct = int((total_score + max_score) / (2 * max_score) * 100)
     score_pct = max(0, min(100, score_pct))
 
-    sc_desc_map = {
-        "강매수":    "기술·매크로·뉴스 신호가 모두 긍정적입니다. 분할 매수를 적극 고려할 수 있는 시점입니다.",
-        "매수":      "신호 일부가 긍정적으로 전환되고 있습니다. 소규모 선진입 또는 추가 매수를 준비하세요.",
-        "보유":      "이미 보유 중이라면 유지하세요. 신호가 혼재해 추가 매수보다 현 포지션 유지가 유리한 단계입니다.",
-        "매도 검토": "부정적 신호가 우세합니다. 신규 진입은 자제하고, 보유 중이라면 리스크를 점검하세요.",
-        "강매도":    "복수의 위험 신호가 켜져 있습니다. 비중 축소 또는 현금 보유를 우선 고려하세요.",
-    }
     if total_score >= max_score * 0.5:
         sc_label, sc_color, sc_bg, sc_emoji = "강매수", "#2d6a0a", "#e8fde8", "🔥"
     elif total_score >= max_score * 0.15:
@@ -1100,7 +1093,54 @@ def build_html(nifty, sensex, metrics, api_key, updated_at, nifty_analysis, sens
         sc_label, sc_color, sc_bg, sc_emoji = "매도 검토", "#c0392b", "#fff0f0", "⚠️"
     else:
         sc_label, sc_color, sc_bg, sc_emoji = "강매도", "#9b2020", "#fde8e8", "🔴"
-    sc_desc = sc_desc_map.get(sc_label, "")
+
+    # 실제 수치 기반 구체적 설명 생성
+    _usdinr = (macro or {}).get("usdinr")
+    _fii_badge = news.get("FII", {}).get("badge", "badge-b")
+    _rbi_badge = news.get("RBI", {}).get("badge", "badge-b")
+    _fii_txt   = news.get("FII", {}).get("text", "")
+    _rbi_txt   = news.get("RBI", {}).get("text", "")
+    _cpi_badge = news.get("cpi", {}).get("badge", "badge-b")
+    _pmi_badge = news.get("pmi", {}).get("badge", "badge-b")
+
+    if sc_label == "강매수":
+        sc_desc = (
+            f"기술·매크로·뉴스 신호가 전반적으로 긍정적입니다. "
+            f"RSI {rsi}로 과열 없이 상승 여력이 있으며, 이평선 {ma_sig} 상태입니다. "
+            + (f"루피(₹{_usdinr}) 안정으로 외국인 수익률도 유리합니다. " if _usdinr and _usdinr < 85 else "")
+            + "지금은 분할 매수를 적극 고려할 수 있는 시점입니다."
+        )
+    elif sc_label == "매수":
+        sc_desc = (
+            f"RSI {rsi}로 중립 수준이며, 이평선 {ma_sig} 상태입니다. "
+            + (f"4주 모멘텀 {mom:+}%로 " + ("상승 흐름 중입니다. " if mom > 0 else "약세이나 반등 여지가 있습니다. "))
+            + (f"FII 자금: {_fii_txt}. " if _fii_txt else "")
+            + "전체 신호가 완전히 갖춰지기 전까지 소규모 선진입으로 접근하세요."
+        )
+    elif sc_label == "보유":
+        bad_parts = []
+        if _usdinr and _usdinr >= 88: bad_parts.append(f"루피 약세(₹{_usdinr})")
+        if _fii_badge == "badge-r": bad_parts.append("FII 외국인 유출")
+        if _cpi_badge == "badge-r": bad_parts.append("물가 상승 압력")
+        if _pmi_badge == "badge-r": bad_parts.append("PMI 제조업 둔화")
+        sc_desc = (
+            f"RSI {rsi}, 이평선 {ma_sig}으로 기술적 신호는 중립입니다. "
+            + (f"{', '.join(bad_parts)} 등 리스크가 남아 있어 추가 매수보다는 현 포지션을 유지하는 것이 유리합니다. " if bad_parts else "신호가 혼재해 추가 매수보다 현 포지션 유지를 권장합니다. ")
+            + f"손절선까지 {sl_dist:+.1f}% 거리를 점검하세요."
+        )
+    elif sc_label == "매도 검토":
+        sc_desc = (
+            f"부정적 신호가 우세합니다. RSI {rsi}, 이평선 {ma_sig} 상태입니다. "
+            + (f"루피가 ₹{_usdinr}까지 약세로 외국인 수익률이 악화되고 있으며, " if _usdinr and _usdinr >= 88 else "")
+            + (f"FII 자금도 유출 중입니다. " if _fii_badge == "badge-r" else "")
+            + f"손절선까지 {sl_dist:+.1f}% — 손절 기준을 재확인하고 비중 축소를 고려하세요."
+        )
+    else:
+        sc_desc = (
+            f"복수의 위험 신호가 동시에 켜져 있습니다. RSI {rsi}, 이평선 {ma_sig}, 4주 모멘텀 {mom:+}%로 기술적 약세가 뚜렷합니다. "
+            + (f"루피(₹{_usdinr}) 급락으로 외국인 자금 이탈이 가속화될 수 있습니다. " if _usdinr and _usdinr >= 90 else "")
+            + "비중 축소 또는 현금 보유를 우선 고려하고 추세 반전 확인 후 재진입하세요."
+        )
 
     scorecard_html = f"""<div style="background:{sc_bg};border:1px solid {sc_color}33;border-radius:18px;padding:18px 20px;margin-bottom:20px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
