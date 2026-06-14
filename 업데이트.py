@@ -2007,33 +2007,92 @@ function saveTDKey() {
   document.getElementById('td-key-input').value = '';
   document.getElementById('td-key-connected').style.display = 'block';
   document.getElementById('td-key-input-row').style.display = 'none';
-  fetchLiveData().then(updateActionGuide);
 }
 function initTDKeyUI() {
   const connected = document.getElementById('td-key-connected');
   const inputRow = document.getElementById('td-key-input-row');
   if (!connected || !inputRow) return;
-  if (getTDKey()) { connected.style.display = 'block'; inputRow.style.display = 'none'; }
-  else { connected.style.display = 'none'; inputRow.style.display = 'flex'; }
+  connected.style.display = 'block';
+  inputRow.style.display = 'none';
 }
-async function fetchTDData(symbols) {
-  const key = getTDKey();
-  if (!key) return {};
-  const url = `https://api.twelvedata.com/quote?symbol=${encodeURIComponent(symbols.join(','))}&apikey=${key}&dp=2`;
-  const r = await fetch(url);
-  if (!r.ok) return {};
-  const data = await r.json();
-  const result = {};
-  for (const sym of symbols) {
-    const item = symbols.length === 1 ? data : data[sym];
-    if (item && !item.code) {
-      result[sym] = { price: parseFloat(item.close), prev: parseFloat(item.previous_close), pct: parseFloat(item.percent_change) };
-    }
-  }
-  return result;
+async function fetchYahooProxy(ticker) {
+  try {
+    const target = encodeURIComponent(`https://query2.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=1d`);
+    const r = await fetch(`https://corsproxy.io/?${target}`);
+    if (!r.ok) return null;
+    const j = await r.json();
+    const meta = j.chart.result[0].meta;
+    const price = meta.regularMarketPrice;
+    const prev = meta.chartPreviousClose || meta.previousClose || price;
+    return { price, prev, pct: prev ? (price - prev) / prev * 100 : 0 };
+  } catch(e) { return null; }
 }
 async function fetchLiveData() {
-  await fetchTDData(['NIFTY50', 'USD/INR', 'INDIA VIX', 'VIX', 'BCO/USD']).catch(() => ({}));
+  const tickers = [
+    { sym: 'NIFTY50', yf: '%5ENSEI' },
+    { sym: 'USD/INR', yf: 'USDINR%3DX' },
+    { sym: 'INDIA VIX', yf: '%5EINDIAVIX' },
+    { sym: 'VIX', yf: '%5EVIX' },
+    { sym: 'BCO/USD', yf: 'BZ%3DF' },
+  ];
+  const results = await Promise.all(tickers.map(t => fetchYahooProxy(t.yf)));
+  const data = {};
+  tickers.forEach((t, i) => { if (results[i]) data[t.sym] = results[i]; });
+
+  const nifty = data['NIFTY50'];
+  const usdinr = data['USD/INR'];
+  const ivix = data['INDIA VIX'];
+  const vix = data['VIX'];
+  const brent = data['BCO/USD'];
+
+  if (nifty) {
+    const cur = Math.round(nifty.price).toLocaleString('ko-KR');
+    const pct = nifty.pct;
+    const el = document.getElementById('ind-niftysup');
+    if (el) {
+      if (nifty.price >= 24000) { el.className = 'badge badge-g'; el.textContent = `✓ ${cur} — 여유 있음`; }
+      else if (nifty.price >= 23000) { el.className = 'badge badge-y'; el.textContent = `⚠ ${cur} — 지지선 근접`; }
+      else { el.className = 'badge badge-r'; el.textContent = `✗ ${cur} — 23,000 이탈!`; }
+    }
+  }
+  if (usdinr) {
+    const el = document.getElementById('ind-usdinr');
+    if (el) {
+      const v = usdinr.price.toFixed(2);
+      const p = usdinr.pct;
+      if (p > 0.3) { el.className = 'badge badge-r'; el.textContent = `✗ ₹${v} — 루피 약세`; }
+      else if (p < -0.3) { el.className = 'badge badge-g'; el.textContent = `✓ ₹${v} — 루피 강세`; }
+      else { el.className = 'badge badge-y'; el.textContent = `→ ₹${v} — 보합`; }
+    }
+  }
+  if (ivix) {
+    const el = document.getElementById('ind-ivix');
+    if (el) {
+      const v = ivix.price.toFixed(1);
+      if (ivix.price < 15) { el.className = 'badge badge-g'; el.textContent = `✓ VIX ${v} — 안정`; }
+      else if (ivix.price < 20) { el.className = 'badge badge-y'; el.textContent = `→ VIX ${v} — 주의`; }
+      else { el.className = 'badge badge-r'; el.textContent = `✗ VIX ${v} — 공포`; }
+    }
+  }
+  if (vix) {
+    const el = document.getElementById('ind-vix');
+    if (el) {
+      const v = vix.price.toFixed(1);
+      if (vix.price < 20) { el.className = 'badge badge-g'; el.textContent = `✓ US VIX ${v}`; }
+      else if (vix.price < 30) { el.className = 'badge badge-y'; el.textContent = `→ US VIX ${v}`; }
+      else { el.className = 'badge badge-r'; el.textContent = `✗ US VIX ${v}`; }
+    }
+  }
+  if (brent) {
+    const el = document.getElementById('ind-crude');
+    if (el) {
+      const v = brent.price.toFixed(1);
+      if (brent.price < 80) { el.className = 'badge badge-g'; el.textContent = `✓ 브렌트 $${v}`; }
+      else if (brent.price < 90) { el.className = 'badge badge-y'; el.textContent = `→ 브렌트 $${v}`; }
+      else { el.className = 'badge badge-r'; el.textContent = `✗ 브렌트 $${v} — 고유가`; }
+    }
+  }
+  return data;
 }
 async function updateActionGuide() {
   const API_KEY = getKey();
@@ -2068,7 +2127,7 @@ async function updateActionGuide() {
     html = html.replace('function getKey()', _td_js + '\nfunction getKey()', 1)
     html = html.replace(
         "window.addEventListener('DOMContentLoaded', function() {\n  if (!getKey())",
-        "window.addEventListener('DOMContentLoaded', function() {\n  initTDKeyUI();\n  if (!getKey())",
+        "window.addEventListener('DOMContentLoaded', function() {\n  initTDKeyUI();\n  fetchLiveData();\n  if (!getKey())",
         1
     )
 
