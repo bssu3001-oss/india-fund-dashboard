@@ -126,6 +126,10 @@ table td:not(:first-child) { text-align: right; }
 <body>
 <div class="container">
 
+  <div style="text-align:right;margin-bottom:12px;">
+    <button onclick="location.reload(true)" style="padding:7px 18px;border-radius:20px;border:0.5px solid var(--border);background:var(--card-bg);color:var(--text);font-size:13px;font-weight:500;cursor:pointer;">🔄 새로고침</button>
+  </div>
+
   <div style="background:#fff8e1;border:1px solid #BA751733;border-radius:18px;padding:18px 20px;margin-bottom:20px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <div>
@@ -134,17 +138,17 @@ table td:not(:first-child) { text-align: right; }
       </div>
       <div style="text-align:right;">
         <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">신호 강도</div>
-        <div style="font-size:24px;font-weight:700;color:#BA7517;">55점</div>
+        <div style="font-size:24px;font-weight:700;color:#BA7517;">50점</div>
         <div style="font-size:10px;color:var(--text3);">/ 100점</div>
       </div>
     </div>
     <div style="background:rgba(0,0,0,0.08);border-radius:6px;height:8px;overflow:hidden;margin-bottom:10px;">
-      <div style="width:55%;height:100%;border-radius:6px;background:#BA7517;transition:width 0.6s;"></div>
+      <div style="width:50%;height:100%;border-radius:6px;background:#BA7517;transition:width 0.6s;"></div>
     </div>
     <div style="display:flex;gap:16px;font-size:11px;color:var(--text2);">
       <span>기술적 <strong style="color:#BA7517;">+1.5</strong></span>
       <span>매크로 <strong style="color:#BA7517;">+1.0</strong></span>
-      <span>뉴스 <strong style="color:#BA7517;">+0.0</strong></span>
+      <span>뉴스 <strong style="color:#BA7517;">-2.4</strong></span>
     </div>
   </div>
 
@@ -177,7 +181,7 @@ table td:not(:first-child) { text-align: right; }
   </div>
   <div class="card" style="margin-top:-4px;">
     <div class="card-title" style="font-size:12px;color:var(--text2);font-weight:500;margin-bottom:10px;">📊 AI 차트 분석 — NIFTY 50</div>
-    <div style="font-size:13px;line-height:2;color:var(--text);">분석 생성 실패: HTTP Error 401: Unauthorized</div>
+    <div style="font-size:13px;line-height:2;color:var(--text);">• <strong>현재 지수</strong>: 23,622 (+1.99%) 어제보다 상승했으나 5주 이평(23,575) 근처에서 횡보 중<br><br>• <strong>추세 (이평)</strong>: 5주·13주·26주 이평이 혼조 배열 → 명확한 상승/하락 신호 부재, <strong>중립적 신호</strong><br><br>• <strong>모멘텀</strong>: RSI 55.8 (중립권), 4주 모멘텀 -0.4% (약한 약세) → <strong>단기 힘이 약함</strong><br><br>• <strong>변동성</strong>: ±0.99% 변동성으로 <strong>저변동성 구간</strong>, 시장이 비교적 안정적<br><br>• <strong>위치</strong>: 52주 고점 26,328 대비 -10.3% 내려온 상태, 저점 22,713 대비는 +4.0% 회복 → <strong>중간 수준 위치</strong><br><br>• <strong>손절선</strong>: 23,000과의 거리 +2.7% → <strong>손절선 근처이나 안전마진 확보 상태</strong><br><br>• <strong>한 줄 결론</strong>: <strong>방향성 없는 횡보 장세로, 추가 상승 신호 대기 중 — 23,000 이하 하락 시 약세 확대 가능성</strong></div>
   </div>
 
   <hr class="divider">
@@ -426,7 +430,7 @@ table td:not(:first-child) { text-align: right; }
   <div class="section-label">주요 이벤트 일정</div>
   <div class="card" style="margin-bottom:16px;">
     <table style="width:100%;border-collapse:collapse;font-size:13px;">
-      <tbody style="line-height:2.2;"><tr><td style="color:var(--text2);">06-18</td><td>FOMC 금리결정</td><td style="text-align:right;color:var(--down);font-weight:600;">D-5</td></tr><tr><td style="color:var(--text2);">07-23</td><td>인도 연방예산 발표</td><td style="text-align:right;color:var(--text3);">D-40</td></tr><tr><td style="color:var(--text2);">08-05</td><td>RBI 통화정책회의</td><td style="text-align:right;color:var(--text3);">D-53</td></tr><tr><td style="color:var(--text2);">09-17</td><td>FOMC 금리결정</td><td style="text-align:right;color:var(--text3);">D-96</td></tr></tbody>
+      <tbody style="line-height:2.2;"><tr><td style="color:var(--text2);">06-18</td><td>FOMC 금리결정</td><td style="text-align:right;color:var(--down);font-weight:600;">D-4</td></tr><tr><td style="color:var(--text2);">07-23</td><td>인도 연방예산 발표</td><td style="text-align:right;color:var(--text3);">D-39</td></tr><tr><td style="color:var(--text2);">08-05</td><td>RBI 통화정책회의</td><td style="text-align:right;color:var(--text3);">D-52</td></tr><tr><td style="color:var(--text2);">09-17</td><td>FOMC 금리결정</td><td style="text-align:right;color:var(--text3);">D-95</td></tr></tbody>
     </table>
     <div style="margin-top:8px;font-size:11px;color:var(--text3);">* 설정.json의 주요이벤트에서 수정할 수 있어요</div>
   </div>
@@ -460,16 +464,16 @@ table td:not(:first-child) { text-align: right; }
       <span class="signal-name">브렌트유<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span>
       <span class="badge badge-y">$87.3 보통</span>
     </div>
-    <div class="signal-row" title=" Record foreign outflows cap India stock rally in 2025; selling may ease next year |  FII Inflows vs. Outflows: Understanding Market Sentiment for AMEX:SPY by GlobalWolfStreet |  FII flows 2026: Foreign investors extend selling streak in early sessions; analysts expect turnaround lat"><span class="signal-name">FII 외국인 자금<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span><span class="badge badge-b">분석 중</span></div>
-    <div class="signal-row" title=" What Are FII and DII In Indian Stock Market? |  DII inflows hit a peak at ₹4.3 trillion in the first half of 2026 |  DIIs invest Rs 58,000 crore in eight sessions as markets slide on West Asia tensions"><span class="signal-name">DII 국내기관 자금<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span><span class="badge badge-b">분석 중</span></div>
-    <div class="signal-row" title=" India's cenbank cuts growth outlook, raises inflation forecast as it keeps rates steady at 5.25% |  Iran war puts RBI in razor-edge policy bind over inflation, growth and rupee |  India Rate-Hike Bets Build as Pricey Oil, Weak Rupee Stoke Inflation Risks"><span class="signal-name">RBI 금리<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span><span class="badge badge-b">분석 중</span></div>
-    <div class="signal-row" title=" Manufacturing drags down India's private sector activity in May: Flash PMI |  PMI watch: India's services growth eases in February as demand softens, costs rise |  Private Sector Growth Hits 10-month Low In December"><span class="signal-name">인도 PMI<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span><span class="badge badge-b">분석 중</span></div>
-    <div class="signal-row" title=" Consumer inflation rises to 3.93% in May, higher costs from West Asia war get passed on to households |  Inflation heat returns in May on climbing food prices |  India CPI inflation likely fell to multi-year low of 0.48% in October: Reuters poll"><span class="signal-name">인도 CPI<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span><span class="badge badge-b">분석 중</span></div>
-    <div class="signal-row" title=" India-US trade deal can be finalised after tariff probe concludes, official says |  Shifting trade relations: India-US trade ties are more strategically balanced |  Donald Trump confident of India trade deal, calls Narendra Modi a 'great friend'"><span class="signal-name">미-인도 무역<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span><span class="badge badge-b">분석 중</span></div>
-    <div class="signal-row" title=" ‘The Old Game Is Back’: Oil Is a Potent Geopolitical Tool Again |  How to understand the Iran war market swings: A geopolitical put option |  How is the conflict in the Middle East affecting developing economies?"><span class="signal-name">중동 정세<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span><span class="badge badge-b">분석 중</span></div>
+    <div class="signal-row" title=" DII buying lifts markets as FII selling slows |  Record foreign outflows cap India stock rally in 2025; selling may ease next year |  FII Inflows vs. Outflows: Understanding Market Sentiment for AMEX:SPY by GlobalWolfStreet"><span class="signal-name">FII 외국인 자금<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span><span class="badge badge-y">외국인 매도 둔화, 하반기 회복 기대</span></div>
+    <div class="signal-row" title=" What Are FII and DII In Indian Stock Market? |  DIIs invest Rs 58,000 crore in eight sessions as markets slide on West Asia tensions |  DII inflows hit a peak at ₹4.3 trillion in the first half of 2026"><span class="signal-name">DII 국내기관 자금<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span><span class="badge badge-g">상반기 4.3조 순매수, 강한 지지</span></div>
+    <div class="signal-row" title=" India's cenbank cuts growth outlook, raises inflation forecast as it keeps rates steady at 5.25% |  Iran war puts RBI in razor-edge policy bind over inflation, growth and rupee |  India Rate-Hike Bets Build as Pricey Oil, Weak Rupee Stoke Inflation Risks"><span class="signal-name">RBI 금리<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span><span class="badge badge-y">금리 유지, 인상 가능성 부상</span></div>
+    <div class="signal-row" title=" Manufacturing drags down India's private sector activity in May: Flash PMI |  PMI watch: India's services growth eases in February as demand softens, costs rise |  Private Sector Growth Hits 10-month Low In December"><span class="signal-name">인도 PMI<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span><span class="badge badge-r">제조업 약세, 수요 둔화 신호</span></div>
+    <div class="signal-row" title=" Consumer inflation rises to 3.93% in May, higher costs from West Asia war get passed on to households |  India CPI inflation likely fell to multi-year low of 0.48% in October: Reuters poll |  Inflation heat returns in May on climbing food prices"><span class="signal-name">인도 CPI<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span><span class="badge badge-r">5월 3.93% 상승, 인플레 재부상</span></div>
+    <div class="signal-row" title=" India-US trade deal can be finalised after tariff probe concludes, official says |  Shifting trade relations: India-US trade ties are more strategically balanced |  Donald Trump confident of India trade deal, calls Narendra Modi a 'great friend'"><span class="signal-name">미-인도 무역<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span><span class="badge badge-y">미-인도 협상 진행, 관세 불확실</span></div>
+    <div class="signal-row" title=" ‘The Old Game Is Back’: Oil Is a Potent Geopolitical Tool Again |  How to understand the Iran war market swings: A geopolitical put option |  How is the conflict in the Middle East affecting developing economies?"><span class="signal-name">중동 정세<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span><span class="badge badge-r">중동 긴장, 유가 상승 압력</span></div>
     <div class="signal-row">
       <span class="signal-name">미국 연준 금리<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span>
-      <span class="badge badge-b">분석 중</span>
+      <span class="badge badge-r">금리 인상 재론, 글로벌 압박</span>
     </div>
     <div style="margin-top:10px;font-size:11px;color:var(--text3);">* 뉴스 항목은 마우스를 올리면 원문 헤드라인을 볼 수 있어요</div>
   </div>
@@ -479,20 +483,20 @@ table td:not(:first-child) { text-align: right; }
   <div class="section-label">액션 가이드</div>
   
   <div class="action action-hold">
-    <div class="action-title">📌 지금 — 보유 유지</div>
-    <div class="action-desc">데이터 수집 중입니다. 다시 열어주세요.</div>
+    <div class="action-title">📌 지금 — 매수 타이밍 대기</div>
+    <div class="action-desc">단기 약세(-1.41%)이나 RSI 55.8(중립)과 FII 자금 둔화 신호로 추가 하락 여력 제한적이므로 계획된 추가 투자 기회를 노리며 보유 유지 권장.</div>
   </div>
   <div class="action action-buy">
     <div class="action-title">🟢 1차 매수 조건</div>
-    <div class="action-desc">NIFTY50 23,000 지지 유지 + FII 순매수 전환 확인 시 → 1,400만원 투입</div>
+    <div class="action-desc">FOMC 금리결정(D-4) 후 시장 변동성 해소 및 기준가 750원 이하 하락 시 1,400만원 추가 매수로 평단가 조정.</div>
   </div>
   <div class="action action-buy">
     <div class="action-title">🟢 2차 매수 조건</div>
-    <div class="action-desc">NIFTY50 24,000 회복 + 추세 확인 시 → 1,400만원 추가</div>
+    <div class="action-desc">인플레·금리 우려 완화 신호 + 기준가 730원 이하 추가 하락 시 나머지 1,400만원으로 적립식 매수 진행.</div>
   </div>
   <div class="action action-sell">
     <div class="action-title">🔴 손절 조건</div>
-    <div class="action-desc">펀드 기준가 718원 이탈 OR NIFTY50 23,000 붕괴 시 → 전량 매도 검토</div>
+    <div class="action-desc">RBI 금리 인상 + 미국 금리 인상 동시 진행으로 인도 자금 유출 가속화 시 손절 기준가 718원 엄격히 수행.</div>
   </div>
 
   <hr class="divider">
@@ -500,6 +504,13 @@ table td:not(:first-child) { text-align: right; }
   <div class="section-label">AI 매매 판단 질문</div>
   <div class="card">
     <div class="card-title">지금 상황 물어보기</div>
+    <div id="key-setup" style="margin-bottom:10px;display:none;">
+      <div style="font-size:12px;color:var(--text3);margin-bottom:6px;">Anthropic API 키를 입력하면 저장됩니다 (이 기기에만)</div>
+      <div class="input-row">
+        <input type="password" id="api-key-input" placeholder="sk-ant-...">
+        <button class="btn" onclick="saveKey()">저장</button>
+      </div>
+    </div>
     <div class="input-row">
       <input type="text" id="ai-q" placeholder="예: 지금 사도 될까요?">
       <button class="btn" onclick="askAI()">분석 ↗</button>
@@ -508,11 +519,16 @@ table td:not(:first-child) { text-align: right; }
       <button class="btn quick-btn" onclick="setQ('지금 1차 매수 타이밍인가요?')">1차 매수?</button>
       <button class="btn quick-btn" onclick="setQ('지금 보유가 맞나요 매도해야 하나요?')">보유 vs 매도</button>
       <button class="btn quick-btn" onclick="setQ('이번 주 인도 시장 핵심 이슈가 뭔가요?')">이번 주 이슈</button>
+      <button class="btn quick-btn" onclick="toggleKeySetup()">🔑 키 변경</button>
     </div>
     <div class="ai-response" id="ai-resp">질문을 입력하거나 위 버튼을 눌러보세요.</div>
   </div>
 
-  <div class="footer">마지막 업데이트: 2026.06.13 22:45</div>
+  <div class="footer">
+    마지막 업데이트: 2026.06.14 11:06
+    <br><br>
+    <button onclick="location.reload(true)" style="margin-top:4px;padding:8px 24px;border-radius:20px;border:0.5px solid var(--border);background:var(--card-bg);color:var(--text);font-size:13px;font-weight:500;cursor:pointer;">🔄 새로고침</button>
+  </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
@@ -596,15 +612,30 @@ function switchChart(canvasId, prefix, key, el) {
   c.inst.update();
 }
 
-const API_KEY = "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";
+function getKey() { return localStorage.getItem('anthropic_api_key') || ''; }
+function toggleKeySetup() {
+  const el = document.getElementById('key-setup');
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+function saveKey() {
+  const k = document.getElementById('api-key-input').value.trim();
+  if (!k) return;
+  localStorage.setItem('anthropic_api_key', k);
+  document.getElementById('api-key-input').value = '';
+  document.getElementById('key-setup').style.display = 'none';
+  document.getElementById('ai-resp').textContent = 'API 키가 저장됐어요. 질문을 입력해보세요.';
+}
+if (!getKey()) document.getElementById('key-setup').style.display = 'block';
 
 function setQ(q) { document.getElementById('ai-q').value = q; }
 
 async function askAI() {
   const q = document.getElementById('ai-q').value.trim();
   if (!q) return;
+  const API_KEY = getKey();
   if (!API_KEY) {
-    document.getElementById('ai-resp').textContent = '설정.json 파일에 anthropic_api_key 를 입력해주세요.';
+    document.getElementById('key-setup').style.display = 'block';
+    document.getElementById('ai-resp').textContent = 'API 키를 먼저 입력해주세요.';
     return;
   }
   const box = document.getElementById('ai-resp');
@@ -616,14 +647,14 @@ async function askAI() {
 투자금: 1,400만원 / 추가 투자 예정: 2,800만원
 손절 기준: 기준가 718원 이탈
 
-[실시간 시장 데이터 — 2026.06.13 22:45 기준]
+[실시간 시장 데이터 — 2026.06.14 11:06 기준]
 - NIFTY50: 23,622 (▲1.99%)
 - USD/INR: ₹95.1 / India VIX: 14.72 / US VIX: 17.68
 - 브렌트유: $87.3 / NIFTY P/E: 20.4
-- FII: 분석 중 / DII: 분석 중
-- RBI 금리: 분석 중 / 미국 연준: 분석 중
-- 인도 CPI: 분석 중 / PMI: 분석 중
-- 미-인도 무역: 분석 중 / 중동: 분석 중
+- FII: 외국인 매도 둔화, 하반기 회복 기대 / DII: 상반기 4.3조 순매수, 강한 지지
+- RBI 금리: 금리 유지, 인상 가능성 부상 / 미국 연준: 금리 인상 재론, 글로벌 압박
+- 인도 CPI: 5월 3.93% 상승, 인플레 재부상 / PMI: 제조업 약세, 수요 둔화 신호
+- 미-인도 무역: 미-인도 협상 진행, 관세 불확실 / 중동: 중동 긴장, 유가 상승 압력
 
 3~5문장, 한국어, 마지막에 "이 답변은 참고용입니다" 짧게 명시.`;
 

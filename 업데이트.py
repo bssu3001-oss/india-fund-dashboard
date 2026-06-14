@@ -1424,6 +1424,7 @@ table td:not(:first-child) {{ text-align: right; }}
       <button class="btn quick-btn" onclick="setQ('지금 1차 매수 타이밍인가요?')">1차 매수?</button>
       <button class="btn quick-btn" onclick="setQ('지금 보유가 맞나요 매도해야 하나요?')">보유 vs 매도</button>
       <button class="btn quick-btn" onclick="setQ('이번 주 인도 시장 핵심 이슈가 뭔가요?')">이번 주 이슈</button>
+      <button class="btn quick-btn" onclick="toggleKeySetup()">🔑 키 변경</button>
     </div>
     <div class="ai-response" id="ai-resp">질문을 입력하거나 위 버튼을 눌러보세요.</div>
   </div>
@@ -1517,6 +1518,10 @@ function switchChart(canvasId, prefix, key, el) {{
 }}
 
 function getKey() {{ return localStorage.getItem('anthropic_api_key') || ''; }}
+function toggleKeySetup() {{
+  const el = document.getElementById('key-setup');
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}}
 function saveKey() {{
   const k = document.getElementById('api-key-input').value.trim();
   if (!k) return;
@@ -1525,7 +1530,9 @@ function saveKey() {{
   document.getElementById('key-setup').style.display = 'none';
   document.getElementById('ai-resp').textContent = 'API 키가 저장됐어요. 질문을 입력해보세요.';
 }}
-if (!getKey()) document.getElementById('key-setup').style.display = 'block';
+window.addEventListener('DOMContentLoaded', function() {{
+  if (!getKey()) document.getElementById('key-setup').style.display = 'block';
+}});
 
 function setQ(q) {{ document.getElementById('ai-q').value = q; }}
 
