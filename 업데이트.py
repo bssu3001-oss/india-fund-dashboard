@@ -1830,6 +1830,93 @@ def main():
     action_guide = generate_action_guide(nifty, metrics, nifty_ind, macro, news, api_key, events=events)
     html = build_html(nifty, sensex, metrics, api_key, updated_at, nifty_analysis, sensex_analysis, nav_history=nav_history, indicators=nifty_ind, macro=macro, news=news, action_guide=action_guide, events=events)
 
+    # TwelveData UI/JS 주입
+    _td_ui = '''<div id="td-key-setup" style="background:#f8f9fa;border-radius:10px;padding:12px;margin-bottom:10px;">
+      <div id="td-key-connected" style="display:none;font-size:12px;color:var(--text2);">✅ TwelveData 실시간 연동 중 &nbsp;<button onclick="document.getElementById('td-key-connected').style.display='none';document.getElementById('td-key-input-row').style.display='flex';" style="padding:4px 10px;background:#4f8cff;color:#fff;border:none;border-radius:6px;font-size:11px;cursor:pointer;">🔑 키 변경</button></div>
+      <div id="td-key-input-row" style="display:none;flex-direction:column;gap:6px;">
+        <div style="font-size:12px;color:var(--text2);">📡 실시간 시세 연동을 위해 <b>TwelveData API 키</b>가 필요해요 (<a href="https://twelvedata.com" target="_blank" style="color:var(--info-text)">twelvedata.com</a> 무료 가입)</div>
+        <div style="display:flex;gap:8px;">
+          <input type="password" id="td-key-input" placeholder="TwelveData API 키 입력" style="flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--card-bg);color:var(--text);">
+          <button onclick="saveTDKey()" style="padding:8px 14px;background:#4f8cff;color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;">저장</button>
+        </div>
+      </div>
+    </div>'''
+    html = html.replace('<div id="key-setup"', _td_ui + '\n    <div id="key-setup"', 1)
+
+    _td_js = r"""
+function getTDKey() { return localStorage.getItem('twelvedata_api_key') || ''; }
+function saveTDKey() {
+  const k = document.getElementById('td-key-input')?.value.trim();
+  if (!k) return;
+  localStorage.setItem('twelvedata_api_key', k);
+  document.getElementById('td-key-input').value = '';
+  document.getElementById('td-key-connected').style.display = 'block';
+  document.getElementById('td-key-input-row').style.display = 'none';
+  fetchLiveData().then(updateActionGuide);
+}
+function initTDKeyUI() {
+  const connected = document.getElementById('td-key-connected');
+  const inputRow = document.getElementById('td-key-input-row');
+  if (!connected || !inputRow) return;
+  if (getTDKey()) { connected.style.display = 'block'; inputRow.style.display = 'none'; }
+  else { connected.style.display = 'none'; inputRow.style.display = 'flex'; }
+}
+async function fetchTDData(symbols) {
+  const key = getTDKey();
+  if (!key) return {};
+  const url = `https://api.twelvedata.com/quote?symbol=${encodeURIComponent(symbols.join(','))}&apikey=${key}&dp=2`;
+  const r = await fetch(url);
+  if (!r.ok) return {};
+  const data = await r.json();
+  const result = {};
+  for (const sym of symbols) {
+    const item = symbols.length === 1 ? data : data[sym];
+    if (item && !item.code) {
+      result[sym] = { price: parseFloat(item.close), prev: parseFloat(item.previous_close), pct: parseFloat(item.percent_change) };
+    }
+  }
+  return result;
+}
+async function fetchLiveData() {
+  await fetchTDData(['NIFTY50', 'USD/INR', 'INDIA VIX', 'VIX', 'BCO/USD']).catch(() => ({}));
+}
+async function updateActionGuide() {
+  const API_KEY = getKey();
+  if (!API_KEY) return;
+  const status = document.getElementById('ag-status');
+  if (status) status.textContent = '⟳ AI 분석 중...';
+  const td = await fetchTDData(['NIFTY50', 'USD/INR', 'INDIA VIX', 'VIX', 'BCO/USD']).catch(() => ({}));
+  const fmt = (sym, d=0) => td[sym] ? td[sym].price.toLocaleString('ko-KR', {maximumFractionDigits:d}) : '-';
+  const pct = sym => td[sym] ? `${td[sym].pct >= 0 ? '▲' : '▼'}${Math.abs(td[sym].pct).toFixed(2)}%` : '';
+  const ctx = `당신은 10년차 인도 주식 펀드 매니저입니다.\n현재 상황: KB스타 NIFTY50 인덱스 펀드 보유 중\n매수단가: 797.6원 / 손절기준가: 718원\n\n[실시간 시장 데이터]\n- NIFTY50: ${fmt('NIFTY50')} (${pct('NIFTY50')})\n- USD/INR: ₹${fmt('USD/INR',2)} / India VIX: ${fmt('INDIA VIX',1)} / US VIX: ${fmt('VIX',1)}\n- 브렌트유: $${fmt('BCO/USD',1)}`;
+  const prompt = `위 실시간 데이터를 바탕으로 지금 시점의 액션 가이드를 JSON으로 작성해주세요.\n반드시 아래 형식만 출력하세요 (다른 텍스트 없이):\n{"now_title":"...","now_desc":"...","buy1_title":"...","buy1_desc":"...","buy2_title":"...","buy2_desc":"...","sell_title":"...","sell_desc":"..."}`;
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'x-api-key': API_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 600, system: ctx, messages: [{ role: 'user', content: prompt }] })
+    });
+    const d = await res.json();
+    const text = d.content?.[0]?.text || '';
+    const match = text.match(/\{[\s\S]*\}/);
+    if (match) {
+      const g = JSON.parse(match[0]);
+      if (g.now_title)  { document.getElementById('ag-now-title').textContent  = g.now_title;  document.getElementById('ag-now-desc').textContent  = g.now_desc; }
+      if (g.buy1_title) { document.getElementById('ag-buy1-title').textContent = g.buy1_title; document.getElementById('ag-buy1-desc').textContent = g.buy1_desc; }
+      if (g.buy2_title) { document.getElementById('ag-buy2-title').textContent = g.buy2_title; document.getElementById('ag-buy2-desc').textContent = g.buy2_desc; }
+      if (g.sell_title) { document.getElementById('ag-sell-title').textContent = g.sell_title; document.getElementById('ag-sell-desc').textContent = g.sell_desc; }
+      if (status) status.textContent = '✓ 방금 업데이트';
+    } else { if (status) status.textContent = ''; }
+  } catch(e) { if (status) status.textContent = ''; }
+}
+"""
+    html = html.replace('function getKey()', _td_js + '\nfunction getKey()', 1)
+    html = html.replace(
+        "window.addEventListener('DOMContentLoaded', function() {\n  if (!getKey())",
+        "window.addEventListener('DOMContentLoaded', function() {\n  initTDKeyUI();\n  if (getTDKey()) fetchLiveData().then(updateActionGuide);\n  if (!getKey())",
+        1
+    )
+
     out_path = os.path.join(os.path.dirname(__file__), '인도펀드_대시보드.html')
     with open(out_path, 'w', encoding='utf-8') as f:
         f.write(html)
