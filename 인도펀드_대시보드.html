@@ -494,11 +494,14 @@ table td:not(:first-child) { text-align: right; }
     <div class="action-desc">기준가 718원 이하 하락 또는 NIFTY50이 23,000 아래로 이탈하며 FII 매도가 재개되는 악재 동시 발생 시 손절 실행.</div>
   </div>
 
-  <div id="td-key-setup" style="display:none;background:#f8f9fa;border-radius:10px;padding:12px;margin-top:10px;">
-    <div style="font-size:12px;color:var(--text2);margin-bottom:8px;">📡 실시간 시세 연동을 위해 <b>TwelveData API 키</b>가 필요해요 (<a href="https://twelvedata.com" target="_blank" style="color:var(--info-text)">twelvedata.com</a> 무료 가입)</div>
-    <div style="display:flex;gap:8px;">
-      <input type="password" id="td-key-input" placeholder="TwelveData API 키 입력" style="flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--card-bg);color:var(--text);">
-      <button onclick="saveTDKey()" style="padding:8px 14px;background:#4f8cff;color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;">저장</button>
+  <div id="td-key-setup" style="background:#f8f9fa;border-radius:10px;padding:12px;margin-top:10px;">
+    <div id="td-key-connected" style="display:none;font-size:12px;color:var(--text2);">✅ TwelveData 실시간 연동 중 &nbsp;<button onclick="document.getElementById('td-key-connected').style.display='none';document.getElementById('td-key-input-row').style.display='flex';" style="padding:4px 10px;background:#4f8cff;color:#fff;border:none;border-radius:6px;font-size:11px;cursor:pointer;">🔑 키 변경</button></div>
+    <div id="td-key-input-row" style="display:none;flex-direction:column;gap:6px;">
+      <div style="font-size:12px;color:var(--text2);">📡 실시간 시세 연동을 위해 <b>TwelveData API 키</b>가 필요해요 (<a href="https://twelvedata.com" target="_blank" style="color:var(--info-text)">twelvedata.com</a> 무료 가입)</div>
+      <div style="display:flex;gap:8px;">
+        <input type="password" id="td-key-input" placeholder="TwelveData API 키 입력" style="flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--card-bg);color:var(--text);">
+        <button onclick="saveTDKey()" style="padding:8px 14px;background:#4f8cff;color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;">저장</button>
+      </div>
     </div>
   </div>
 
@@ -634,8 +637,16 @@ function saveTDKey() {
   if (!k) return;
   localStorage.setItem('twelvedata_api_key', k);
   document.getElementById('td-key-input').value = '';
-  document.getElementById('td-key-setup').style.display = 'none';
+  document.getElementById('td-key-connected').style.display = 'block';
+  document.getElementById('td-key-input-row').style.display = 'none';
   fetchLiveData().then(updateActionGuide);
+}
+function initTDKeyUI() {
+  const connected = document.getElementById('td-key-connected');
+  const inputRow = document.getElementById('td-key-input-row');
+  if (!connected || !inputRow) return;
+  if (getTDKey()) { connected.style.display = 'block'; inputRow.style.display = 'none'; }
+  else { connected.style.display = 'none'; inputRow.style.display = 'flex'; }
 }
 async function fetchTDData(symbols) {
   const key = getTDKey();
@@ -705,8 +716,7 @@ async function updateActionGuide() {
 
 window.addEventListener('DOMContentLoaded', function() {
   if (!getKey()) document.getElementById('key-setup').style.display = 'block';
-  const tdSetup = document.getElementById('td-key-setup');
-  if (tdSetup) tdSetup.style.display = getTDKey() ? 'none' : 'block';
+  initTDKeyUI();
   if (getTDKey()) fetchLiveData().then(updateActionGuide);
 });
 
