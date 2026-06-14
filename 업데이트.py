@@ -1727,46 +1727,46 @@ function switchNavChart(key, el) {{
   // 긍정/부정 요인 수집
   const goodFactors = [];
   const badFactors  = [];
-  if (isGood('ind-rsi'))    goodFactors.push(`RSI(${rsiTxt})`);
-  else if (isBad('ind-rsi')) badFactors.push(`RSI(${rsiTxt})`);
-  if (isGood('ind-ma'))     goodFactors.push(`이평선 ${maTxt}`);
-  else if (isBad('ind-ma')) badFactors.push(`이평선 ${maTxt}`);
-  if (isGood('ind-mom'))    goodFactors.push(`모멘텀 ${momTxt}`);
-  else if (isBad('ind-mom')) badFactors.push(`모멘텀 ${momTxt}`);
-  if (isGood('ind-fii'))    goodFactors.push(`FII 외국인 순매수(${fiiTxt})`);
-  else if (isBad('ind-fii')) badFactors.push(`FII 외국인 순매도(${fiiTxt})`);
-  if (isGood('ind-usdinr')) goodFactors.push(`루피 안정(${inrTxt})`);
-  else if (isBad('ind-usdinr')) badFactors.push(`루피 약세(${inrTxt})`);
-  if (isGood('ind-cpi'))    goodFactors.push(`물가 안정(${cpiTxt})`);
-  else if (isBad('ind-cpi')) badFactors.push(`물가 압박(${cpiTxt})`);
-  if (isGood('ind-pmi'))    goodFactors.push(`PMI 호조(${pmiTxt})`);
-  else if (isBad('ind-pmi')) badFactors.push(`PMI 약세(${pmiTxt})`);
-  if (isGood('ind-ivix'))   goodFactors.push(`India VIX 안정(${ivixTxt})`);
-  else if (isBad('ind-ivix')) badFactors.push(`India VIX 급등(${ivixTxt})`);
+  if (isGood('ind-rsi'))    goodFactors.push(`RSI(${{rsiTxt}})`);
+  else if (isBad('ind-rsi')) badFactors.push(`RSI(${{rsiTxt}})`);
+  if (isGood('ind-ma'))     goodFactors.push(`이평선 ${{maTxt}}`);
+  else if (isBad('ind-ma')) badFactors.push(`이평선 ${{maTxt}}`);
+  if (isGood('ind-mom'))    goodFactors.push(`모멘텀 ${{momTxt}}`);
+  else if (isBad('ind-mom')) badFactors.push(`모멘텀 ${{momTxt}}`);
+  if (isGood('ind-fii'))    goodFactors.push(`FII 외국인 순매수(${{fiiTxt}})`);
+  else if (isBad('ind-fii')) badFactors.push(`FII 외국인 순매도(${{fiiTxt}})`);
+  if (isGood('ind-usdinr')) goodFactors.push(`루피 안정(${{inrTxt}})`);
+  else if (isBad('ind-usdinr')) badFactors.push(`루피 약세(${{inrTxt}})`);
+  if (isGood('ind-cpi'))    goodFactors.push(`물가 안정(${{cpiTxt}})`);
+  else if (isBad('ind-cpi')) badFactors.push(`물가 압박(${{cpiTxt}})`);
+  if (isGood('ind-pmi'))    goodFactors.push(`PMI 호조(${{pmiTxt}})`);
+  else if (isBad('ind-pmi')) badFactors.push(`PMI 약세(${{pmiTxt}})`);
+  if (isGood('ind-ivix'))   goodFactors.push(`India VIX 안정(${{ivixTxt}})`);
+  else if (isBad('ind-ivix')) badFactors.push(`India VIX 급등(${{ivixTxt}})`);
 
   let desc = '';
   if (label === '강매수') {{
     desc = `기술·매크로·뉴스 신호가 전반적으로 긍정적입니다. `
          + (goodFactors.length ? goodFactors.slice(0,4).join(', ') + ' 신호가 동시에 켜진 강한 매수 구간입니다. ' : '')
-         + `분할 매수를 적극 고려하세요. 손절: ${slTxt}.`;
+         + `분할 매수를 적극 고려하세요. 손절: ${{slTxt}}.`;
   }} else if (label === '매수') {{
     desc = `기술적 흐름이 개선 중입니다. `
          + (goodFactors.length ? '✅ ' + goodFactors.join(', ') + '. ' : '')
          + (badFactors.length ? '⚠️ ' + badFactors.join(', ') + ' 리스크 잔존. ' : '')
-         + `소규모 선진입 후 신호 강화 시 추가 매수로 대응하세요. 손절: ${slTxt}.`;
+         + `소규모 선진입 후 신호 강화 시 추가 매수로 대응하세요. 손절: ${{slTxt}}.`;
   }} else if (label === '보유') {{
-    desc = (goodFactors.length ? `✅ ${goodFactors.join(', ')} 긍정적이나, ` : `신호가 혼재합니다. `)
-         + (badFactors.length ? `⚠️ ${badFactors.join(', ')} 부담이 남아 있어 추가 매수보다 현 포지션 유지가 유리합니다. ` : '')
-         + `손절선 ${slTxt} 유지하며 관망하세요.`;
+    desc = (goodFactors.length ? `✅ ${{goodFactors.join(', ')}} 긍정적이나, ` : `신호가 혼재합니다. `)
+         + (badFactors.length ? `⚠️ ${{badFactors.join(', ')}} 부담이 남아 있어 추가 매수보다 현 포지션 유지가 유리합니다. ` : '')
+         + `손절선 ${{slTxt}} 유지하며 관망하세요.`;
   }} else if (label === '매도 검토') {{
     desc = `부정 신호가 우세합니다. `
          + (badFactors.length ? '⚠️ ' + badFactors.join(', ') + ' 상태입니다. ' : '')
-         + (goodFactors.length ? `(긍정 요인: ${goodFactors.join(', ')}) ` : '')
-         + `${slTxt} — 손절 기준 재확인 후 비중 축소를 고려하세요.`;
+         + (goodFactors.length ? `(긍정 요인: ${{goodFactors.join(', ')}}) ` : '')
+         + `${{slTxt}} — 손절 기준 재확인 후 비중 축소를 고려하세요.`;
   }} else {{
     desc = `복수의 위험 신호가 동시에 켜져 있습니다. `
          + (badFactors.length ? badFactors.join(', ') + ' 모두 부정적입니다. ' : '')
-         + `비중 축소 또는 현금 보유를 우선 고려하고 ${slTxt} 이탈 시 즉시 대응하세요.`;
+         + `비중 축소 또는 현금 보유를 우선 고려하고 ${{slTxt}} 이탈 시 즉시 대응하세요.`;
   }}
   if (scDesc) scDesc.textContent = desc;
 }})();
