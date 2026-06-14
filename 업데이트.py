@@ -1604,7 +1604,9 @@ def main():
     metrics = calc_metrics(cfg, nifty["current"])
     # 환경변수 우선, 없으면 설정.json 사용 (GitHub Actions 호환)
     api_key = (os.environ.get("ANTHROPIC_API_KEY") or cfg.get("anthropic_api_key", "")).strip()
-    updated_at = datetime.now().strftime("%Y.%m.%d %H:%M")
+    from datetime import timezone, timedelta
+    KST = timezone(timedelta(hours=9))
+    updated_at = datetime.now(KST).strftime("%Y.%m.%d %H:%M")
 
     sensex = fetch_sensex()
     print(f"SENSEX 현재: {sensex['current']:,} ({'+' if sensex['change_pct']>=0 else ''}{sensex['change_pct']}%)")
