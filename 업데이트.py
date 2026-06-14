@@ -2094,14 +2094,14 @@ async function fetchLiveData() {
   }
   return data;
 }
-async function updateActionGuide() {
+async function updateActionGuide(data) {
   const API_KEY = getKey();
   if (!API_KEY) return;
+  if (!data) data = await fetchLiveData().catch(() => ({}));
   const status = document.getElementById('ag-status');
   if (status) status.textContent = '⟳ AI 분석 중...';
-  const td = await fetchTDData(['NIFTY50', 'USD/INR', 'INDIA VIX', 'VIX', 'BCO/USD']).catch(() => ({}));
-  const fmt = (sym, d=0) => td[sym] ? td[sym].price.toLocaleString('ko-KR', {maximumFractionDigits:d}) : '-';
-  const pct = sym => td[sym] ? `${td[sym].pct >= 0 ? '▲' : '▼'}${Math.abs(td[sym].pct).toFixed(2)}%` : '';
+  const fmt = (sym, d=0) => data[sym] ? data[sym].price.toLocaleString('ko-KR', {maximumFractionDigits:d}) : '-';
+  const pct = sym => data[sym] ? `${data[sym].pct >= 0 ? '▲' : '▼'}${Math.abs(data[sym].pct).toFixed(2)}%` : '';
   const ctx = `당신은 10년차 인도 주식 펀드 매니저입니다.\n현재 상황: KB스타 NIFTY50 인덱스 펀드 보유 중\n매수단가: 797.6원 / 손절기준가: 718원\n\n[실시간 시장 데이터]\n- NIFTY50: ${fmt('NIFTY50')} (${pct('NIFTY50')})\n- USD/INR: ₹${fmt('USD/INR',2)} / India VIX: ${fmt('INDIA VIX',1)} / US VIX: ${fmt('VIX',1)}\n- 브렌트유: $${fmt('BCO/USD',1)}`;
   const prompt = `위 실시간 데이터를 바탕으로 지금 시점의 액션 가이드를 JSON으로 작성해주세요.\n반드시 아래 형식만 출력하세요 (다른 텍스트 없이):\n{"now_title":"...","now_desc":"...","buy1_title":"...","buy1_desc":"...","buy2_title":"...","buy2_desc":"...","sell_title":"...","sell_desc":"..."}`;
   try {
@@ -2127,7 +2127,7 @@ async function updateActionGuide() {
     html = html.replace('function getKey()', _td_js + '\nfunction getKey()', 1)
     html = html.replace(
         "window.addEventListener('DOMContentLoaded', function() {\n  if (!getKey())",
-        "window.addEventListener('DOMContentLoaded', function() {\n  initTDKeyUI();\n  fetchLiveData();\n  if (!getKey())",
+        "window.addEventListener('DOMContentLoaded', function() {\n  initTDKeyUI();\n  fetchLiveData().then(updateActionGuide);\n  if (!getKey())",
         1
     )
 
