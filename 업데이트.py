@@ -1283,6 +1283,10 @@ table td:not(:first-child) {{ text-align: right; }}
 <body>
 <div class="container">
 
+  <div style="text-align:right;margin-bottom:12px;">
+    <button onclick="location.reload(true)" style="padding:7px 18px;border-radius:20px;border:0.5px solid var(--border);background:var(--card-bg);color:var(--text);font-size:13px;font-weight:500;cursor:pointer;">🔄 새로고침</button>
+  </div>
+
   {scorecard_html}
 
   <div class="section-label">NIFTY 50</div>
