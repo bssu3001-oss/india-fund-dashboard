@@ -2068,7 +2068,7 @@ async function updateActionGuide() {
     html = html.replace('function getKey()', _td_js + '\nfunction getKey()', 1)
     html = html.replace(
         "window.addEventListener('DOMContentLoaded', function() {\n  if (!getKey())",
-        "window.addEventListener('DOMContentLoaded', function() {\n  initTDKeyUI();\n  if (getTDKey()) fetchLiveData().then(updateActionGuide);\n  if (!getKey())",
+        "window.addEventListener('DOMContentLoaded', function() {\n  initTDKeyUI();\n  if (!getKey())",
         1
     )
 
