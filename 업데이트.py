@@ -826,8 +826,9 @@ def build_html(nifty, sensex, metrics, api_key, updated_at, nifty_analysis, sens
 
     # 기술적 신호 (자동 계산)
     ind = indicators or {}
-    def sig_row(name, badge_cls, text):
-        return f'<div class="signal-row"><span class="signal-name">{name}</span><span class="badge {badge_cls}">{text}</span></div>'
+    def sig_row(name, badge_cls, text, badge_id=""):
+        id_attr = f' id="{badge_id}"' if badge_id else ''
+        return f'<div class="signal-row"><span class="signal-name">{name}</span><span class="badge {badge_cls}"{id_attr} data-sg="tech">{text}</span></div>'
 
     rsi = ind.get("rsi", 50)
     if rsi <= 30:   rsi_cls, rsi_txt = "badge-g", f"RSI {rsi} — 과매도 (매수 기회)"
@@ -867,13 +868,13 @@ def build_html(nifty, sensex, metrics, api_key, updated_at, nifty_analysis, sens
         pe_cls, pe_txt = "badge-b", "P/E 데이터 없음"
 
     tech_signals_html = (
-        sig_row("RSI (14주)", rsi_cls, rsi_txt) +
-        sig_row("이평선 배열", ma_cls, ma_sig) +
-        sig_row("단기 모멘텀", mom_cls, mom_txt) +
-        sig_row("변동성", vol_cls, vol_txt) +
-        sig_row("52주 가격 위치", pos_cls, pos_txt) +
-        sig_row("NIFTY 밸류에이션", pe_cls, pe_txt) +
-        sig_row("손절선 거리", sl_cls, sl_txt)
+        sig_row("RSI (14주)", rsi_cls, rsi_txt, "ind-rsi") +
+        sig_row("이평선 배열", ma_cls, ma_sig, "ind-ma") +
+        sig_row("단기 모멘텀", mom_cls, mom_txt, "ind-mom") +
+        sig_row("변동성", vol_cls, vol_txt, "ind-vol") +
+        sig_row("52주 가격 위치", pos_cls, pos_txt, "ind-pos") +
+        sig_row("NIFTY 밸류에이션", pe_cls, pe_txt, "ind-pe") +
+        sig_row("손절선 거리", sl_cls, sl_txt, "ind-sl")
     )
 
     # ── 매크로 신호 자동 계산 ──────────────────────────────────────
@@ -949,13 +950,13 @@ def build_html(nifty, sensex, metrics, api_key, updated_at, nifty_analysis, sens
         badge_cls = n.get("badge", "badge-b")
         text = n.get("text", "수집 중...")
         tag = auto_tag if auto else ""
-        # 헤드라인 툴팁용 data 속성
         headlines = n.get("headlines", [])
         tooltip = " | ".join(h[18:] for h in headlines[:3]) if headlines else ""
         tooltip_attr = f'title="{tooltip}"' if tooltip else ""
+        badge_id = f'ind-{key.lower()}'
         return (f'<div class="signal-row" {tooltip_attr}>'
                 f'<span class="signal-name">{label}{tag}</span>'
-                f'<span class="badge {badge_cls}">{text}</span>'
+                f'<span class="badge {badge_cls}" id="{badge_id}" data-sg="news">{text}</span>'
                 f'</div>')
 
     # 연준 금리는 실제 수치 표시
@@ -975,23 +976,23 @@ def build_html(nifty, sensex, metrics, api_key, updated_at, nifty_analysis, sens
     {monsoon_banner}
     <div class="signal-row">
       <span class="signal-name">NIFTY50 23,000 지지</span>
-      <span class="badge {nifty_sup_cls}">{nifty_sup_txt}</span>
+      <span class="badge {nifty_sup_cls}" id="ind-niftysup" data-sg="macro">{nifty_sup_txt}</span>
     </div>
     <div class="signal-row">
       <span class="signal-name">루피/달러{auto_tag} <span style="font-size:10px;color:var(--text3);">(환헤지 펀드·직접 영향 낮음)</span></span>
-      <span class="badge {usdinr_cls}">{usdinr_txt}</span>
+      <span class="badge {usdinr_cls}" id="ind-usdinr" data-sg="macro">{usdinr_txt}</span>
     </div>
     <div class="signal-row">
       <span class="signal-name">India VIX{auto_tag} <span style="font-size:10px;color:var(--text3);">(인도 공포지수)</span></span>
-      <span class="badge {ivix_cls}">{ivix_txt}</span>
+      <span class="badge {ivix_cls}" id="ind-ivix" data-sg="macro">{ivix_txt}</span>
     </div>
     <div class="signal-row">
       <span class="signal-name">공포지수 VIX{auto_tag} <span style="font-size:10px;color:var(--text3);">(미국)</span></span>
-      <span class="badge {vix_cls}">{vix_txt}</span>
+      <span class="badge {vix_cls}" id="ind-vix" data-sg="macro">{vix_txt}</span>
     </div>
     <div class="signal-row">
       <span class="signal-name">브렌트유{auto_tag}</span>
-      <span class="badge {crude_cls}">{crude_txt}</span>
+      <span class="badge {crude_cls}" id="ind-crude" data-sg="macro">{crude_txt}</span>
     </div>
     {news_row("FII 외국인 자금", "FII")}
     {news_row("DII 국내기관 자금", "DII")}
@@ -1002,7 +1003,7 @@ def build_html(nifty, sensex, metrics, api_key, updated_at, nifty_analysis, sens
     {news_row("중동 정세", "mideast")}
     <div class="signal-row">
       <span class="signal-name">미국 연준 금리{auto_tag}</span>
-      <span class="badge {fed_badge}">{fed_text}</span>
+      <span class="badge {fed_badge}" id="ind-fed" data-sg="news">{fed_text}</span>
     </div>
     <div style="margin-top:10px;font-size:11px;color:var(--text3);">* 뉴스 항목은 마우스를 올리면 원문 헤드라인을 볼 수 있어요</div>
   </div>"""
@@ -1659,23 +1660,92 @@ function switchNavChart(key, el) {{
   c.inst.update();
 }}
 
-// 페이지 열릴 때 신호 설명 자동 세팅
+// 페이지 열릴 때 신호 점수 재계산 + 실제 수치 기반 설명 생성
 (function() {{
-  const descMap = {{
-    '강매수':    '기술·매크로·뉴스 신호가 모두 긍정적입니다. 분할 매수를 적극 고려할 수 있는 시점입니다.',
-    '매수':      '신호 일부가 긍정적으로 전환되고 있습니다. 소규모 선진입 또는 추가 매수를 준비하세요.',
-    '보유':      '이미 보유 중이라면 유지하세요. 신호가 혼재해 추가 매수보다 현 포지션 유지가 유리한 단계입니다.',
-    '매도 검토': '부정적 신호가 우세합니다. 신규 진입은 자제하고, 보유 중이라면 리스크를 점검하세요.',
-    '강매도':    '복수의 위험 신호가 켜져 있습니다. 비중 축소 또는 현금 보유를 우선 고려하세요.',
-  }};
-  const emojiEl = document.getElementById('sc-emoji');
-  const descEl  = document.getElementById('sc-desc');
-  if (emojiEl && descEl) {{
-    const label = emojiEl.textContent.replace(/[^가-힣a-zA-Z ]/gu, '').trim();
-    for (const [key, text] of Object.entries(descMap)) {{
-      if (label.includes(key)) {{ descEl.textContent = text; break; }}
-    }}
+  const bmap = {{'badge-g': 1, 'badge-r': -1, 'badge-y': 0, 'badge-b': 0}};
+  function sg(group) {{
+    return [...document.querySelectorAll(`[data-sg="${{group}}"]`)].reduce((s, el) => {{
+      for (const [c, v] of Object.entries(bmap)) if (el.classList.contains(c)) return s + v;
+      return s;
+    }}, 0);
   }}
+  function cls(id) {{
+    const el = document.getElementById(id); if (!el) return '';
+    for (const c of ['badge-g','badge-r','badge-y','badge-b']) if (el.classList.contains(c)) return c;
+    return '';
+  }}
+  function txt(id) {{ const el = document.getElementById(id); return el ? el.textContent : ''; }}
+
+  const techBadges  = document.querySelectorAll('[data-sg="tech"]').length  || 7;
+  const macroBadges = document.querySelectorAll('[data-sg="macro"]').length || 5;
+  const newsBadges  = document.querySelectorAll('[data-sg="news"]').length  || 8;
+  const ts = sg('tech')  * 1.5;
+  const ms = sg('macro') * 1.0;
+  const ns = sg('news')  * 0.8;
+  const total = ts + ms + ns;
+  const maxS = techBadges*1.5 + macroBadges*1.0 + newsBadges*0.8;
+  const pct = Math.max(0, Math.min(100, Math.round((total + maxS) / (2*maxS) * 100)));
+
+  let label, color, bg;
+  if      (total >= maxS*0.5)  {{ label='강매수';    color='#2d6a0a'; bg='#e8fde8'; }}
+  else if (total >= maxS*0.15) {{ label='매수';       color='#2d8a4e'; bg='#f0faf0'; }}
+  else if (total >= -maxS*0.15){{ label='보유';       color='#BA7517'; bg='#fff8e1'; }}
+  else if (total >= -maxS*0.5) {{ label='매도 검토';  color='#c0392b'; bg='#fff0f0'; }}
+  else                          {{ label='강매도';    color='#9b2020'; bg='#fde8e8'; }}
+
+  const emojiMap = {{'강매수':'🔥 강매수','매수':'🟢 매수','보유':'📌 보유','매도 검토':'⚠️매도 검토','강매도':'🔴 강매도'}};
+  const scEmoji = document.getElementById('sc-emoji');
+  const scPct   = document.getElementById('sc-pct');
+  const scBar   = document.getElementById('sc-bar');
+  const scTech  = document.getElementById('sc-tech');
+  const scMacro = document.getElementById('sc-macro');
+  const scNews  = document.getElementById('sc-news');
+  const scDesc  = document.getElementById('sc-desc');
+  if (scEmoji) {{ scEmoji.textContent = emojiMap[label] || label; scEmoji.style.color = color; }}
+  if (scPct)   {{ scPct.textContent = pct+'점'; scPct.style.color = color; }}
+  if (scBar)   {{ scBar.style.width = pct+'%'; scBar.style.background = color; }}
+  const fmt = v => (v>=0?'+':'')+v.toFixed(1);
+  if (scTech)  {{ scTech.textContent  = fmt(ts);  scTech.style.color  = color; }}
+  if (scMacro) {{ scMacro.textContent = fmt(ms); scMacro.style.color = color; }}
+  if (scNews)  {{ scNews.textContent  = fmt(ns);  scNews.style.color  = color; }}
+
+  // 실제 수치 읽기
+  const rsiTxt  = txt('ind-rsi').replace('RSI ','').split(' — ')[0];
+  const maTxt   = txt('ind-ma');
+  const momTxt  = txt('ind-mom');
+  const slTxt   = txt('ind-sl');
+  const inrTxt  = txt('ind-usdinr').split(' — ')[0];
+  const fiiTxt  = txt('ind-fii');
+  const cpiTxt  = txt('ind-cpi');
+  const pmiTxt  = txt('ind-pmi');
+
+  const isBad  = id => cls(id) === 'badge-r';
+  const isGood = id => cls(id) === 'badge-g';
+
+  let desc = '';
+  if (label === '강매수') {{
+    desc = `기술·매크로·뉴스 신호가 전반적으로 긍정적입니다. RSI ${{rsiTxt}}, 이평선 ${{maTxt}}으로 상승 여력이 있습니다.`
+         + (isGood('ind-ivix') ? ` India VIX도 안정적이어서 변동성 리스크가 낮습니다.` : '')
+         + ` 지금은 분할 매수를 적극 고려할 수 있는 시점입니다.`;
+  }} else if (label === '매수') {{
+    const goods = [['ind-fii','FII 자금'],['ind-dii','DII 자금'],['ind-ivix','VIX 안정'],['ind-gdp','GDP']].filter(([id])=>isGood(id)).map(([,n])=>n);
+    desc = `RSI ${{rsiTxt}}, 이평선 ${{maTxt}} 상태입니다. ${{goods.length ? goods.slice(0,2).join('·')+' 신호가 긍정적입니다. ' : ''}}`
+         + `전체 조건이 완전히 갖춰지기 전까지 소규모 선진입으로 접근하세요.`;
+  }} else if (label === '보유') {{
+    const bads = [['ind-usdinr','루피 약세'],['ind-fii','FII 유출'],['ind-cpi','물가 상승'],['ind-pmi','PMI 약세']].filter(([id])=>isBad(id)).map(([,n])=>n);
+    desc = `RSI ${{rsiTxt}}, 이평선 ${{maTxt}}으로 신호가 혼재합니다.`
+         + (bads.length ? ` ${{bads.slice(0,2).join('·')}} 리스크가 남아 있어 추가 매수보다 현 포지션 유지가 유리합니다.` : ` 추가 매수보다 현 포지션 유지를 권장합니다.`)
+         + ` ${{slTxt}}.`;
+  }} else if (label === '매도 검토') {{
+    desc = `부정 신호가 우세합니다. RSI ${{rsiTxt}}, 이평선 ${{maTxt}} 상태입니다.`
+         + (isBad('ind-usdinr') ? ` 루피(${{inrTxt}}) 약세로 외국인 수익률 악화.` : '')
+         + (isBad('ind-fii') ? ` FII 외국인 자금 유출 지속.` : '')
+         + ` ${{slTxt}} — 손절 기준을 재확인하고 비중 축소를 고려하세요.`;
+  }} else {{
+    desc = `복수의 위험 신호가 동시에 켜져 있습니다. RSI ${{rsiTxt}}, 이평선 ${{maTxt}}, ${{momTxt}}으로 하락 추세가 뚜렷합니다.`
+         + ` 비중 축소 또는 현금 보유를 우선 고려하고 추세 반전 확인 후 재진입하세요.`;
+  }}
+  if (scDesc) scDesc.textContent = desc;
 }})();
 </script>
 </body>
@@ -1739,6 +1809,10 @@ def main():
 
     out_path = os.path.join(os.path.dirname(__file__), '인도펀드_대시보드.html')
     with open(out_path, 'w', encoding='utf-8') as f:
+        f.write(html)
+
+    idx_path = os.path.join(os.path.dirname(__file__), 'index.html')
+    with open(idx_path, 'w', encoding='utf-8') as f:
         f.write(html)
 
     print(f"\n대시보드 업데이트 완료!")
