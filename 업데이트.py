@@ -1083,6 +1083,13 @@ def build_html(nifty, sensex, metrics, api_key, updated_at, nifty_analysis, sens
     score_pct = int((total_score + max_score) / (2 * max_score) * 100)
     score_pct = max(0, min(100, score_pct))
 
+    sc_desc_map = {
+        "강매수":    "기술·매크로·뉴스 신호가 모두 긍정적입니다. 분할 매수를 적극 고려할 수 있는 시점입니다.",
+        "매수":      "신호 일부가 긍정적으로 전환되고 있습니다. 소규모 선진입 또는 추가 매수를 준비하세요.",
+        "보유":      "이미 보유 중이라면 유지하세요. 신호가 혼재해 추가 매수보다 현 포지션 유지가 유리한 단계입니다.",
+        "매도 검토": "부정적 신호가 우세합니다. 신규 진입은 자제하고, 보유 중이라면 리스크를 점검하세요.",
+        "강매도":    "복수의 위험 신호가 켜져 있습니다. 비중 축소 또는 현금 보유를 우선 고려하세요.",
+    }
     if total_score >= max_score * 0.5:
         sc_label, sc_color, sc_bg, sc_emoji = "강매수", "#2d6a0a", "#e8fde8", "🔥"
     elif total_score >= max_score * 0.15:
@@ -1093,27 +1100,29 @@ def build_html(nifty, sensex, metrics, api_key, updated_at, nifty_analysis, sens
         sc_label, sc_color, sc_bg, sc_emoji = "매도 검토", "#c0392b", "#fff0f0", "⚠️"
     else:
         sc_label, sc_color, sc_bg, sc_emoji = "강매도", "#9b2020", "#fde8e8", "🔴"
+    sc_desc = sc_desc_map.get(sc_label, "")
 
     scorecard_html = f"""<div style="background:{sc_bg};border:1px solid {sc_color}33;border-radius:18px;padding:18px 20px;margin-bottom:20px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <div>
         <div style="font-size:11px;font-weight:600;color:{sc_color};letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px;">종합 투자 신호</div>
-        <div style="font-size:28px;font-weight:700;color:{sc_color};">{sc_emoji} {sc_label}</div>
+        <div id="sc-emoji" style="font-size:28px;font-weight:700;color:{sc_color};">{sc_emoji} {sc_label}</div>
       </div>
       <div style="text-align:right;">
         <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">신호 강도</div>
-        <div style="font-size:24px;font-weight:700;color:{sc_color};">{score_pct}점</div>
+        <div id="sc-pct" style="font-size:24px;font-weight:700;color:{sc_color};">{score_pct}점</div>
         <div style="font-size:10px;color:var(--text3);">/ 100점</div>
       </div>
     </div>
     <div style="background:rgba(0,0,0,0.08);border-radius:6px;height:8px;overflow:hidden;margin-bottom:10px;">
-      <div style="width:{score_pct}%;height:100%;border-radius:6px;background:{sc_color};transition:width 0.6s;"></div>
+      <div id="sc-bar" style="width:{score_pct}%;height:100%;border-radius:6px;background:{sc_color};transition:width 0.6s;"></div>
     </div>
     <div style="display:flex;gap:16px;font-size:11px;color:var(--text2);">
-      <span>기술적 <strong style="color:{sc_color};">{'+' if tech_score>=0 else ''}{tech_score:.1f}</strong></span>
-      <span>매크로 <strong style="color:{sc_color};">{'+' if macro_score>=0 else ''}{macro_score:.1f}</strong></span>
-      <span>뉴스 <strong style="color:{sc_color};">{'+' if news_score>=0 else ''}{news_score:.1f}</strong></span>
+      <span>기술적 <strong id="sc-tech" style="color:{sc_color};">{'+' if tech_score>=0 else ''}{tech_score:.1f}</strong></span>
+      <span>매크로 <strong id="sc-macro" style="color:{sc_color};">{'+' if macro_score>=0 else ''}{macro_score:.1f}</strong></span>
+      <span>뉴스 <strong id="sc-news" style="color:{sc_color};">{'+' if news_score>=0 else ''}{news_score:.1f}</strong></span>
     </div>
+    <div id="sc-desc" style="margin-top:10px;font-size:12px;color:var(--text2);line-height:1.6;padding:10px 12px;background:rgba(0,0,0,0.04);border-radius:10px;">{sc_desc}</div>
   </div>"""
 
     # ── 이벤트 일정 카드 ──────────────────────────────────────────
@@ -1609,6 +1618,25 @@ function switchNavChart(key, el) {{
   c.inst.data.datasets = makeDatasets(c.data[key].prices, 'd30', c.data.name, c.data.sl);
   c.inst.update();
 }}
+
+// 페이지 열릴 때 신호 설명 자동 세팅
+(function() {{
+  const descMap = {{
+    '강매수':    '기술·매크로·뉴스 신호가 모두 긍정적입니다. 분할 매수를 적극 고려할 수 있는 시점입니다.',
+    '매수':      '신호 일부가 긍정적으로 전환되고 있습니다. 소규모 선진입 또는 추가 매수를 준비하세요.',
+    '보유':      '이미 보유 중이라면 유지하세요. 신호가 혼재해 추가 매수보다 현 포지션 유지가 유리한 단계입니다.',
+    '매도 검토': '부정적 신호가 우세합니다. 신규 진입은 자제하고, 보유 중이라면 리스크를 점검하세요.',
+    '강매도':    '복수의 위험 신호가 켜져 있습니다. 비중 축소 또는 현금 보유를 우선 고려하세요.',
+  }};
+  const emojiEl = document.getElementById('sc-emoji');
+  const descEl  = document.getElementById('sc-desc');
+  if (emojiEl && descEl) {{
+    const label = emojiEl.textContent.replace(/[^가-힣a-zA-Z ]/gu, '').trim();
+    for (const [key, text] of Object.entries(descMap)) {{
+      if (label.includes(key)) {{ descEl.textContent = text; break; }}
+    }}
+  }}
+}})();
 </script>
 </body>
 </html>"""
