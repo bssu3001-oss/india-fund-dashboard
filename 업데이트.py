@@ -1710,40 +1710,63 @@ function switchNavChart(key, el) {{
   if (scNews)  {{ scNews.textContent  = fmt(ns);  scNews.style.color  = color; }}
 
   // 실제 수치 읽기
-  const rsiTxt  = txt('ind-rsi').replace('RSI ','').split(' — ')[0];
+  const rsiTxt  = txt('ind-rsi');
   const maTxt   = txt('ind-ma');
   const momTxt  = txt('ind-mom');
   const slTxt   = txt('ind-sl');
-  const inrTxt  = txt('ind-usdinr').split(' — ')[0];
+  const inrTxt  = txt('ind-usdinr');
   const fiiTxt  = txt('ind-fii');
   const cpiTxt  = txt('ind-cpi');
   const pmiTxt  = txt('ind-pmi');
+  const ivixTxt = txt('ind-ivix');
 
   const isBad  = id => cls(id) === 'badge-r';
   const isGood = id => cls(id) === 'badge-g';
+  const isYel  = id => cls(id) === 'badge-y';
+
+  // 긍정/부정 요인 수집
+  const goodFactors = [];
+  const badFactors  = [];
+  if (isGood('ind-rsi'))    goodFactors.push(`RSI(${rsiTxt})`);
+  else if (isBad('ind-rsi')) badFactors.push(`RSI(${rsiTxt})`);
+  if (isGood('ind-ma'))     goodFactors.push(`이평선 ${maTxt}`);
+  else if (isBad('ind-ma')) badFactors.push(`이평선 ${maTxt}`);
+  if (isGood('ind-mom'))    goodFactors.push(`모멘텀 ${momTxt}`);
+  else if (isBad('ind-mom')) badFactors.push(`모멘텀 ${momTxt}`);
+  if (isGood('ind-fii'))    goodFactors.push(`FII 외국인 순매수(${fiiTxt})`);
+  else if (isBad('ind-fii')) badFactors.push(`FII 외국인 순매도(${fiiTxt})`);
+  if (isGood('ind-usdinr')) goodFactors.push(`루피 안정(${inrTxt})`);
+  else if (isBad('ind-usdinr')) badFactors.push(`루피 약세(${inrTxt})`);
+  if (isGood('ind-cpi'))    goodFactors.push(`물가 안정(${cpiTxt})`);
+  else if (isBad('ind-cpi')) badFactors.push(`물가 압박(${cpiTxt})`);
+  if (isGood('ind-pmi'))    goodFactors.push(`PMI 호조(${pmiTxt})`);
+  else if (isBad('ind-pmi')) badFactors.push(`PMI 약세(${pmiTxt})`);
+  if (isGood('ind-ivix'))   goodFactors.push(`India VIX 안정(${ivixTxt})`);
+  else if (isBad('ind-ivix')) badFactors.push(`India VIX 급등(${ivixTxt})`);
 
   let desc = '';
   if (label === '강매수') {{
-    desc = `기술·매크로·뉴스 신호가 전반적으로 긍정적입니다. RSI ${{rsiTxt}}, 이평선 ${{maTxt}}으로 상승 여력이 있습니다.`
-         + (isGood('ind-ivix') ? ` India VIX도 안정적이어서 변동성 리스크가 낮습니다.` : '')
-         + ` 지금은 분할 매수를 적극 고려할 수 있는 시점입니다.`;
+    desc = `기술·매크로·뉴스 신호가 전반적으로 긍정적입니다. `
+         + (goodFactors.length ? goodFactors.slice(0,4).join(', ') + ' 신호가 동시에 켜진 강한 매수 구간입니다. ' : '')
+         + `분할 매수를 적극 고려하세요. 손절: ${slTxt}.`;
   }} else if (label === '매수') {{
-    const goods = [['ind-fii','FII 자금'],['ind-dii','DII 자금'],['ind-ivix','VIX 안정'],['ind-gdp','GDP']].filter(([id])=>isGood(id)).map(([,n])=>n);
-    desc = `RSI ${{rsiTxt}}, 이평선 ${{maTxt}} 상태입니다. ${{goods.length ? goods.slice(0,2).join('·')+' 신호가 긍정적입니다. ' : ''}}`
-         + `전체 조건이 완전히 갖춰지기 전까지 소규모 선진입으로 접근하세요.`;
+    desc = `기술적 흐름이 개선 중입니다. `
+         + (goodFactors.length ? '✅ ' + goodFactors.join(', ') + '. ' : '')
+         + (badFactors.length ? '⚠️ ' + badFactors.join(', ') + ' 리스크 잔존. ' : '')
+         + `소규모 선진입 후 신호 강화 시 추가 매수로 대응하세요. 손절: ${slTxt}.`;
   }} else if (label === '보유') {{
-    const bads = [['ind-usdinr','루피 약세'],['ind-fii','FII 유출'],['ind-cpi','물가 상승'],['ind-pmi','PMI 약세']].filter(([id])=>isBad(id)).map(([,n])=>n);
-    desc = `RSI ${{rsiTxt}}, 이평선 ${{maTxt}}으로 신호가 혼재합니다.`
-         + (bads.length ? ` ${{bads.slice(0,2).join('·')}} 리스크가 남아 있어 추가 매수보다 현 포지션 유지가 유리합니다.` : ` 추가 매수보다 현 포지션 유지를 권장합니다.`)
-         + ` ${{slTxt}}.`;
+    desc = (goodFactors.length ? `✅ ${goodFactors.join(', ')} 긍정적이나, ` : `신호가 혼재합니다. `)
+         + (badFactors.length ? `⚠️ ${badFactors.join(', ')} 부담이 남아 있어 추가 매수보다 현 포지션 유지가 유리합니다. ` : '')
+         + `손절선 ${slTxt} 유지하며 관망하세요.`;
   }} else if (label === '매도 검토') {{
-    desc = `부정 신호가 우세합니다. RSI ${{rsiTxt}}, 이평선 ${{maTxt}} 상태입니다.`
-         + (isBad('ind-usdinr') ? ` 루피(${{inrTxt}}) 약세로 외국인 수익률 악화.` : '')
-         + (isBad('ind-fii') ? ` FII 외국인 자금 유출 지속.` : '')
-         + ` ${{slTxt}} — 손절 기준을 재확인하고 비중 축소를 고려하세요.`;
+    desc = `부정 신호가 우세합니다. `
+         + (badFactors.length ? '⚠️ ' + badFactors.join(', ') + ' 상태입니다. ' : '')
+         + (goodFactors.length ? `(긍정 요인: ${goodFactors.join(', ')}) ` : '')
+         + `${slTxt} — 손절 기준 재확인 후 비중 축소를 고려하세요.`;
   }} else {{
-    desc = `복수의 위험 신호가 동시에 켜져 있습니다. RSI ${{rsiTxt}}, 이평선 ${{maTxt}}, ${{momTxt}}으로 하락 추세가 뚜렷합니다.`
-         + ` 비중 축소 또는 현금 보유를 우선 고려하고 추세 반전 확인 후 재진입하세요.`;
+    desc = `복수의 위험 신호가 동시에 켜져 있습니다. `
+         + (badFactors.length ? badFactors.join(', ') + ' 모두 부정적입니다. ' : '')
+         + `비중 축소 또는 현금 보유를 우선 고려하고 ${slTxt} 이탈 시 즉시 대응하세요.`;
   }}
   if (scDesc) scDesc.textContent = desc;
 }})();
