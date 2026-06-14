@@ -782,13 +782,7 @@ def build_nav_section_html(history, buy_price=797.6, nifty_data=None, nifty_buy_
     <div class="nifty-price {chg_class}">{cur:.2f}</div>
     <div class="nifty-change {chg_class}">{chg_sign} {abs(diff):.2f} &nbsp;({plus}{pct:.2f}%)</div>
   </div>
-  <div class="period-tabs" id="nav-tabs">
-    <div class="period-tab active" onclick="switchNavChart('mo1',this)">1개월</div>
-    <div class="period-tab" onclick="switchNavChart('mo3',this)">3개월</div>
-    <div class="period-tab" onclick="switchNavChart('mo6',this)">6개월</div>
-    <div class="period-tab" onclick="switchNavChart('yr1',this)">1년</div>
-    <div class="period-tab" onclick="switchNavChart('all',this)">전체</div>
-  </div>
+  <div style="font-size:11px;color:var(--text3);margin-bottom:10px;">* 기준가 이력이 쌓이면 기간 탭이 활성화됩니다</div>
   <div class="card" style="padding:12px 12px 10px;">
     <div class="chart-wrap"><canvas id="chartNav"></canvas></div>
     <div style="display:flex;gap:16px;font-size:11px;color:var(--text2);margin-top:4px;">
