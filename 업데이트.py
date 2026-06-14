@@ -1155,13 +1155,14 @@ def build_html(nifty, sensex, metrics, api_key, updated_at, nifty_analysis, sens
   </div>
   <hr class="divider" style="margin-top:0;">"""
 
-    api_key_js = json.dumps(api_key)
-
     html = f"""<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>인도 펀드 대시보드</title>
 <style>
 * {{ box-sizing: border-box; margin: 0; padding: 0; }}
@@ -1407,6 +1408,13 @@ table td:not(:first-child) {{ text-align: right; }}
   <div class="section-label">AI 매매 판단 질문</div>
   <div class="card">
     <div class="card-title">지금 상황 물어보기</div>
+    <div id="key-setup" style="margin-bottom:10px;display:none;">
+      <div style="font-size:12px;color:var(--text3);margin-bottom:6px;">Anthropic API 키를 입력하면 저장됩니다 (이 기기에만)</div>
+      <div class="input-row">
+        <input type="password" id="api-key-input" placeholder="sk-ant-...">
+        <button class="btn" onclick="saveKey()">저장</button>
+      </div>
+    </div>
     <div class="input-row">
       <input type="text" id="ai-q" placeholder="예: 지금 사도 될까요?">
       <button class="btn" onclick="askAI()">분석 ↗</button>
@@ -1415,6 +1423,7 @@ table td:not(:first-child) {{ text-align: right; }}
       <button class="btn quick-btn" onclick="setQ('지금 1차 매수 타이밍인가요?')">1차 매수?</button>
       <button class="btn quick-btn" onclick="setQ('지금 보유가 맞나요 매도해야 하나요?')">보유 vs 매도</button>
       <button class="btn quick-btn" onclick="setQ('이번 주 인도 시장 핵심 이슈가 뭔가요?')">이번 주 이슈</button>
+      <button class="btn quick-btn" onclick="toggleKeySetup()">🔑 키 변경</button>
     </div>
     <div class="ai-response" id="ai-resp">질문을 입력하거나 위 버튼을 눌러보세요.</div>
   </div>
@@ -1503,15 +1512,32 @@ function switchChart(canvasId, prefix, key, el) {{
   c.inst.update();
 }}
 
-const API_KEY = {api_key_js};
+function getKey() {{ return localStorage.getItem('anthropic_api_key') || ''; }}
+function saveKey() {{
+  const k = document.getElementById('api-key-input').value.trim();
+  if (!k) return;
+  localStorage.setItem('anthropic_api_key', k);
+  document.getElementById('api-key-input').value = '';
+  document.getElementById('key-setup').style.display = 'none';
+  document.getElementById('ai-resp').textContent = 'API 키가 저장됐어요. 질문을 입력해보세요.';
+}}
+function toggleKeySetup() {{
+  const el = document.getElementById('key-setup');
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}}
+window.addEventListener('DOMContentLoaded', function() {{
+  if (!getKey()) document.getElementById('key-setup').style.display = 'block';
+}});
 
 function setQ(q) {{ document.getElementById('ai-q').value = q; }}
 
 async function askAI() {{
   const q = document.getElementById('ai-q').value.trim();
   if (!q) return;
+  const API_KEY = getKey();
   if (!API_KEY) {{
-    document.getElementById('ai-resp').textContent = '설정.json 파일에 anthropic_api_key 를 입력해주세요.';
+    document.getElementById('key-setup').style.display = 'block';
+    document.getElementById('ai-resp').textContent = 'API 키를 먼저 입력해주세요.';
     return;
   }}
   const box = document.getElementById('ai-resp');
@@ -1604,7 +1630,9 @@ def main():
     metrics = calc_metrics(cfg, nifty["current"])
     # 환경변수 우선, 없으면 설정.json 사용 (GitHub Actions 호환)
     api_key = (os.environ.get("ANTHROPIC_API_KEY") or cfg.get("anthropic_api_key", "")).strip()
-    updated_at = datetime.now().strftime("%Y.%m.%d %H:%M")
+    from datetime import timezone, timedelta
+    KST = timezone(timedelta(hours=9))
+    updated_at = datetime.now(KST).strftime("%Y.%m.%d %H:%M")
 
     sensex = fetch_sensex()
     print(f"SENSEX 현재: {sensex['current']:,} ({'+' if sensex['change_pct']>=0 else ''}{sensex['change_pct']}%)")
