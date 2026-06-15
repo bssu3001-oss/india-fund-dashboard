@@ -2140,7 +2140,7 @@ async function updateActionGuide(data) {
     'US Fed': 'US Federal Reserve rate decision'
   }).catch(() => ({}));
   const newsLines = Object.entries(news).map(([k,v]) => v.length ? `[${k}] ${v.join(' / ')}` : '').filter(Boolean);
-  const newsText = newsLines.join('\n');
+  const newsText = newsLines.join('\\n');
   const scLabel = document.getElementById('sc-emoji')?.textContent?.trim() || '';
   const ctx = `당신은 10년차 인도 주식 펀드 매니저입니다.\n현재 상황: KB스타 NIFTY50 인덱스 펀드 보유 중\n매수단가: 797.6원 / 손절기준가: 718원\n\n[실시간 시장 데이터]\n- NIFTY50: ${fmt('NIFTY50')} (${pct('NIFTY50')})\n- USD/INR: ₹${fmt('USD/INR',2)} / India VIX: ${fmt('INDIA VIX',1)} / US VIX: ${fmt('VIX',1)}\n- 브렌트유: $${fmt('BCO/USD',1)}` + (newsText ? `\n\n[실시간 뉴스 헤드라인]\n${newsText}` : '') + (scLabel ? `\n\n[현재 종합신호]: ${scLabel} — 액션 가이드는 이 신호와 반드시 일치해야 합니다.` : '');
   const prompt = `위 실시간 데이터${newsText ? '와 최신 뉴스' : ''}를 바탕으로 지금 시점의 액션 가이드를 JSON으로 작성해주세요.\n반드시 아래 형식만 출력하세요 (다른 텍스트 없이):\n{"now_title":"...","now_desc":"...","buy1_title":"...","buy1_desc":"...","buy2_title":"...","buy2_desc":"...","sell_title":"...","sell_desc":"..."}`;
