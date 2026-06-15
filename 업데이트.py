@@ -421,7 +421,7 @@ badge 기준: g=호재(초록), y=중립/주의(노랑), r=악재(빨강), b=정
     return result
 
 # ── 액션 가이드 AI 생성 ──────────────────────────────────────────────
-def generate_action_guide(nifty, metrics, indicators, macro, news, claude_api_key, events=None):
+def generate_action_guide(nifty, metrics, indicators, macro, news, claude_api_key, events=None, scorecard_label=None):
     if not claude_api_key:
         return None
 
@@ -436,6 +436,8 @@ def generate_action_guide(nifty, metrics, indicators, macro, news, claude_api_ke
     for k, lbl in label_map.items():
         n = nws.get(k, {})
         news_summary += f"- {lbl}: {n.get('text','정보없음')} (판단: {n.get('badge','').replace('badge-','')})\n"
+
+    sc_note = f"\n[종합신호 참고]\n종합매수신호 계산 결과: '{scorecard_label}' — ACTION과 NOW_TITLE은 이 결과와 반드시 일치해야 합니다.\n" if scorecard_label else ""
 
     # 다가오는 이벤트 정리
     events_note = ""
@@ -453,7 +455,8 @@ def generate_action_guide(nifty, metrics, indicators, macro, news, claude_api_ke
         if upcoming:
             events_note = "\n[30일 내 주요 이벤트]\n" + "\n".join(f"- {e}" for e in upcoming)
 
-    prompt = f"""당신은 인도 주식 펀드 전문 매니저입니다. 아래 현재 지표를 보고 액션 가이드를 작성해주세요.
+    prompt = f"""오늘은 {datetime.now().strftime('%Y년 %m월 %d일')}입니다.{sc_note}
+당신은 인도 주식 펀드 전문 매니저입니다. 아래 현재 지표를 보고 액션 가이드를 작성해주세요.
 
 [포트폴리오]
 - 펀드: KB스타 NIFTY50 인덱스 (H) S
@@ -614,7 +617,7 @@ def calc_indicators(prices):
     }
 
 # ── AI 차트 분석 생성 ────────────────────────────────────────────
-def generate_chart_analysis(nifty, api_key):
+def generate_chart_analysis(nifty, api_key, scorecard_label=None):
     if not api_key:
         return "AI 분석을 보려면 설정.json에 anthropic_api_key를 입력해주세요."
 
@@ -622,8 +625,10 @@ def generate_chart_analysis(nifty, api_key):
     # 실제 전일 대비 등락률 사용 (헤더와 동일)
     actual_chg = nifty["change_pct"]
     actual_chg_str = f"{'+' if actual_chg >= 0 else ''}{actual_chg}%"
+    sc_note = f"\n참고: 종합매수신호 계산 결과는 '{scorecard_label}'입니다. 이 결론과 일치하는 방향으로 분석해주세요." if scorecard_label else ""
 
-    prompt = f"""NIFTY50 주간 차트 지표를 바탕으로 분석해줘.
+    prompt = f"""오늘은 {datetime.now().strftime('%Y년 %m월 %d일')}입니다.{sc_note}
+NIFTY50 주간 차트 지표를 바탕으로 분석해줘.
 
 [지표]
 현재: {ind['current']:,} (전일 대비 {actual_chg_str})
@@ -1593,16 +1598,24 @@ async function askAI() {{
   const box = document.getElementById('ai-resp');
   box.textContent = '분석 중...';
 
+  const _liveN = (typeof _liveData !== 'undefined' && _liveData.nifty) ? _liveData.nifty.toLocaleString('ko-KR',{{maximumFractionDigits:0}}) : '{nifty["current"]:,}';
+  const _livePct = (typeof _liveData !== 'undefined' && _liveData.niftyChg !== undefined && _liveData.nifty) ? (((_liveData.niftyChg/_liveData.nifty*100)>=0)?'▲':'▼')+Math.abs(_liveData.niftyChg/_liveData.nifty*100).toFixed(2)+'%' : '';
+  const _liveInrF = (typeof _liveData !== 'undefined' && _liveData.usdinr) ? '₹'+_liveData.usdinr.toFixed(2) : '₹{macro.get("usdinr","?")}';
+  const _liveVixF = (typeof _liveData !== 'undefined' && _liveData.vix) ? _liveData.vix.toFixed(1) : '{macro.get("india_vix","?")}';
+  const _sc2 = document.getElementById('sc-emoji')?.textContent?.trim() || '';
+  const _today2 = new Date().toLocaleDateString('ko-KR',{{year:'numeric',month:'long',day:'numeric'}});
   const ctx = `당신은 10년차 인도 펀드 매니저입니다.
 포트폴리오: KB스타 NIFTY50 인덱스 (H) S
 매수 평균단가: {metrics["buy_price"]}원 / 현재 기준가: {metrics["current_price"]:.2f}원 / 손익: {pnl_sign}{metrics["pnl_pct"]}%
 투자금: {metrics["invest_man"]:,}만원 / 추가 투자 예정: {metrics["add_invest_man"]:,}만원
 손절 기준: 기준가 {metrics["sl_price"]}원 이탈
+오늘 날짜: ${{_today2}}
 
-[실시간 시장 데이터 — {updated_at} 기준]
-- NIFTY50: {nifty["current"]:,} ({'▲' if nifty["change_pct"]>=0 else '▼'}{abs(nifty["change_pct"])}%)
-- USD/INR: ₹{macro.get("usdinr","?")} / India VIX: {macro.get("india_vix","?")} / US VIX: {macro.get("vix","?")}
+[실시간 시장 데이터]
+- NIFTY50: ${{_liveN}} ${{_livePct}}
+- USD/INR: ${{_liveInrF}} / India VIX: ${{_liveVixF}} / US VIX: {macro.get("vix","?")}
 - 브렌트유: ${macro.get("crude","?")} / NIFTY P/E: {macro.get("nifty_pe","?")}
+- 종합신호: ${{_sc2}}
 - FII: {(news or {}).get("FII", {}).get("text","정보없음")} / DII: {(news or {}).get("DII", {}).get("text","정보없음")}
 - RBI 금리: {(news or {}).get("RBI", {}).get("text","정보없음")} / 미국 연준: {(news or {}).get("fed", {}).get("text","정보없음")}
 - 인도 CPI: {(news or {}).get("cpi", {}).get("text","정보없음")} / PMI: {(news or {}).get("pmi", {}).get("text","정보없음")}
@@ -1662,7 +1675,7 @@ function switchNavChart(key, el) {{
 }}
 
 // 페이지 열릴 때 신호 점수 재계산 + 실제 수치 기반 설명 생성
-(function() {{
+function recalcScorecard() {{
   const bmap = {{'badge-g': 1, 'badge-r': -1, 'badge-y': 0, 'badge-b': 0}};
   function sg(group) {{
     return [...document.querySelectorAll(`[data-sg="${{group}}"]`)].reduce((s, el) => {{
@@ -1770,7 +1783,8 @@ function switchNavChart(key, el) {{
          + `비중 축소 또는 현금 보유를 우선 고려하고 ${{slTxt}} 이탈 시 즉시 대응하세요.`;
   }}
   if (scDesc) scDesc.textContent = desc;
-}})();
+}}
+recalcScorecard();
 </script>
 </body>
 </html>"""
@@ -1835,7 +1849,6 @@ def generate_ai_commentary(nifty, metrics, indicators, macro, api_key, signal_em
            f"{sc_line}"
            f"{desc_line}")
     return msg.strip()
-        return ""
 
 
 def check_action_guide_achievement(nifty, metrics, indicators, macro, action_guide, api_key):
@@ -1920,10 +1933,6 @@ def main():
     print("뉴스 신호 수집 중...")
     news = fetch_news_signals(api_key, newsapi_key if newsapi_key else None)
 
-    print("AI 차트 분석 생성 중...")
-    nifty_analysis  = generate_chart_analysis(nifty, api_key)
-    sensex_analysis = ""  # SENSEX는 참고용 차트만 제공, AI 분석 제외
-
     # 기준가 이력: 공공데이터 API 자동 → 없으면 설정.json 수동 데이터
     public_api_key = os.environ.get("PUBLIC_DATA_API_KEY") or cfg.get("공공데이터_api_key", "")
     if public_api_key:
@@ -1942,8 +1951,28 @@ def main():
     nifty_ind = calc_indicators(nifty["yr1"]["prices"])
     events = cfg.get("주요이벤트", [])
 
+    # 종합신호 미리 계산 (chart_analysis와 action_guide에 전달)
+    _bmap_preview = {"badge-g": 1, "badge-y": 0, "badge-r": -1, "badge-b": 0}
+    _rsi_prev = nifty_ind.get("rsi", 50)
+    _rsi_cls = "badge-g" if _rsi_prev <= 30 else ("badge-r" if _rsi_prev >= 70 else "badge-b")
+    _ma_cls = "badge-g" if "정배열" in nifty_ind.get("ma_signal","") else ("badge-r" if "역배열" in nifty_ind.get("ma_signal","") else "badge-y")
+    _mom_cls = "badge-g" if nifty_ind.get("momentum",0) > 1 else ("badge-r" if nifty_ind.get("momentum",0) < -1 else "badge-y")
+    _news_scores = sum(_bmap_preview.get(news.get(k,{}).get("badge","badge-b"),0) for k in ["FII","DII","RBI","pmi","cpi","trade","mideast","fed"])
+    _total_preview = sum(_bmap_preview.get(c,0)*1.5 for c in [_rsi_cls,_ma_cls,_mom_cls]) + _news_scores*0.8
+    _max_preview = 3*1.5 + 8*0.8
+    if _total_preview >= _max_preview * 0.5:   sc_label_preview = "강매수"
+    elif _total_preview >= _max_preview * 0.15: sc_label_preview = "매수"
+    elif _total_preview >= -_max_preview * 0.15: sc_label_preview = "보유"
+    elif _total_preview >= -_max_preview * 0.5:  sc_label_preview = "매도 검토"
+    else:                                         sc_label_preview = "강매도"
+    print(f"  종합매수신호(미리보기): {sc_label_preview}")
+
+    print("AI 차트 분석 생성 중...")
+    nifty_analysis  = generate_chart_analysis(nifty, api_key, scorecard_label=sc_label_preview)
+    sensex_analysis = ""  # SENSEX는 참고용 차트만 제공, AI 분석 제외
+
     print("액션 가이드 생성 중...")
-    action_guide = generate_action_guide(nifty, metrics, nifty_ind, macro, news, api_key, events=events)
+    action_guide = generate_action_guide(nifty, metrics, nifty_ind, macro, news, api_key, events=events, scorecard_label=sc_label_preview)
     html = build_html(nifty, sensex, metrics, api_key, updated_at, nifty_analysis, sensex_analysis, nav_history=nav_history, indicators=nifty_ind, macro=macro, news=news, action_guide=action_guide, events=events)
 
     # TwelveData UI/JS 주입
@@ -2088,7 +2117,7 @@ async function updateActionGuide(data) {
     html = html.replace('function getKey()', _td_js + '\nfunction getKey()', 1)
     html = html.replace(
         "window.addEventListener('DOMContentLoaded', function() {\n  if (!getKey())",
-        "window.addEventListener('DOMContentLoaded', function() {\n  initTDKeyUI();\n  fetchLiveData().then(updateActionGuide);\n  if (!getKey())",
+        "window.addEventListener('DOMContentLoaded', function() {\n  initTDKeyUI();\n  fetchLiveData().then(data => { updateActionGuide(data); recalcScorecard(); });\n  if (!getKey())",
         1
     )
 
