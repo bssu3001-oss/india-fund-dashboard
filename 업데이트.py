@@ -163,7 +163,10 @@ def fetch_index(symbol, name, fallback):
     except Exception:
         current = today_close if today_close else (d1_prices[-1] if d1_prices else fallback)
 
-    prev_close = d5_prices[-2] if len(d5_prices) >= 2 else current
+    try:
+        prev_close = round(float(ticker.fast_info.previous_close), 2)
+    except Exception:
+        prev_close = d5_prices[-2] if len(d5_prices) >= 2 else current
     change_val = current - prev_close
     change_pct = round(change_val / prev_close * 100, 2)
 
