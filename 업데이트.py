@@ -2153,12 +2153,12 @@ async function updateActionGuide(data) {
             _pct   = _pt.group(1).strip() if _pt else None
             signal_emoji = f"{_emoji} ({_pct})" if _emoji and _pct else _emoji
             signal_desc  = _ds.group(1).strip() if _ds else None
-            commentary = generate_ai_commentary(nifty, metrics, nifty_ind, macro, api_key, signal_emoji=signal_emoji, signal_desc=signal_desc)
-            if commentary:
-                kakao_send(access_token, commentary)
-                print("✅ AI 코멘트 발송 완료")
-            else:
-                print("ℹ️ AI 코멘트: 특이사항 없음 — 발송 안 함")
+            _nifty_price = f"{nifty['price']:,.0f}" if nifty.get('price') else "?"
+            signal_msg = f"📊 [인도펀드] 종합신호\nNifty {_nifty_price}\n{signal_emoji}"
+            if signal_desc:
+                signal_msg += f"\n{signal_desc[:150]}"
+            kakao_send(access_token, signal_msg)
+            print("✅ 종합신호 발송 완료")
 
             achievement = check_action_guide_achievement(nifty, metrics, nifty_ind, macro, action_guide, api_key)
             if achievement:
