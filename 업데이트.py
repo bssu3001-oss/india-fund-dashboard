@@ -694,7 +694,7 @@ def index_section_html(data, chart_analysis, name, chart_id, period_prefix, sl=N
         analysis_card = f"""
   <div class="card" style="margin-top:-4px;">
     <div class="card-title" style="font-size:12px;color:var(--text2);font-weight:500;margin-bottom:10px;">📊 AI 차트 분석 — {name}</div>
-    <div style="font-size:13px;line-height:2;color:var(--text);">{analysis_html}</div>
+    <div id="ai-chart-analysis" style="font-size:13px;line-height:2;color:var(--text);">{analysis_html}</div>
   </div>"""
 
     return f"""
@@ -1015,6 +1015,7 @@ def build_html(nifty, sensex, metrics, api_key, updated_at, nifty_analysis, sens
       <span class="badge {fed_badge}" id="ind-fed" data-sg="news">{fed_text}</span>
     </div>
     <div style="margin-top:10px;font-size:11px;color:var(--text3);">* 뉴스 항목은 마우스를 올리면 원문 헤드라인을 볼 수 있어요</div>
+    <div id="news-live-note" style="margin-top:4px;font-size:11px;color:var(--text3);"></div>
   </div>"""
 
     # ── 액션 가이드 HTML ──────────────────────────────────────────
@@ -1449,6 +1450,7 @@ table td:not(:first-child) {{ text-align: right; }}
   <div class="card">
     <div class="card-title" style="margin-bottom:8px;">📡 기술적 지표 (자동)</div>
     {tech_signals_html}
+    <div style="margin-top:8px;font-size:11px;color:var(--text3);">* RSI·이평선·모멘텀·변동성·52주 위치는 열 때마다 실시간 계산 / P/E·손절선 거리는 업데이트.py 기준</div>
   </div>
   {news_card_html}
 
@@ -1792,6 +1794,7 @@ function recalcScorecard() {{
 }}
 recalcScorecard();
 </script>
+<script src="실시간.js"></script>
 </body>
 </html>"""
     return html

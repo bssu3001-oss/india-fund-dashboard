@@ -182,7 +182,7 @@ table td:not(:first-child) { text-align: right; }
   </div>
   <div class="card" style="margin-top:-4px;">
     <div class="card-title" style="font-size:12px;color:var(--text2);font-weight:500;margin-bottom:10px;">📊 AI 차트 분석 — NIFTY 50</div>
-    <div style="font-size:13px;line-height:2;color:var(--text);">• <strong>현재 지수</strong>: 23,853 (전일 대비 +0.94%) — 소폭 상승세 유지 중<br><br>• <strong>추세 (이평)</strong>: 혼조 배열로 <strong>명확한 방향성 부재</strong> — 5주선(23,621)과 13주선(23,673)은 밀착되어 있으나 26주선(24,385) 위쪽에 있어 중기 하락 추세 내 횡보 중<br><br>• <strong>모멘텀</strong>: RSI 58.2로 <strong>중립 수준</strong> (과열·과냉 구간 이탈) — 4주 모멘텀 +0.6%로 단기 힘 약함<br><br>• <strong>변동성</strong>: ±1.06% 변동성으로 <strong>낮은 수준</strong> — 시장이 정체 국면에서 움직임 제한적<br><br>• <strong>위치</strong>: 52주 고점 -9.4% 하락 / 52주 저점 대비 +5.0% 회복 — <strong>중하단 수준</strong>에 위치하며 저점 근처 배회 중<br><br>• <strong>손절선</strong>: 23,000 대비 +3.7% 상단 — 손절선과 적절한 <strong>쿠션 유지</strong> 중<br><br>• <strong>한 줄 결론</strong>: 추세 혼조와 약한 모멘텀 속 중간값 유지로 <strong>추가 상승 신호 전까지 보유 포지션 유지</strong>가 타당함.</div>
+    <div id="ai-chart-analysis" style="font-size:13px;line-height:2;color:var(--text);"># NIFTY50 주간 차트 분석 (2026년 06월 15일)<br><br>• <strong>현재 지수</strong>: 23,853으로 전일 대비 <strong>+0.94%</strong> 상승, 소폭 상승장 진행 중<br><br>• <strong>추세 (이평)</strong>: 5주(23,621) < 13주(23,673) ≈ 현재(23,853)로 <strong>혼조 배열</strong>, 명확한 상승/하락 신호 부재<br><br>• <strong>모멘텀</strong>: RSI 58.2는 <strong>중립대 상단</strong>(과매수 70 이전), 4주 모멘텀 +0.6%로 <strong>약한 상승 힘</strong><br><br>• <strong>변동성</strong>: ±1.06%의 <strong>낮은 변동성</strong>, 시장이 안정적이나 방향성 약함<br><br>• <strong>위치</strong>: 52주 고점 26,328 대비 <strong>-9.4% 하락</strong>했으나, 52주 저점 22,713 대비 <strong>+5.0% 회복</strong>으로 중단계 회복 진행<br><br>• <strong>손절선</strong>: 23,000 대비 <strong>+3.7% 상단</strong>에 위치, 충분한 안전마진 확보<br><br>• <strong>한 줄 결론</strong>: <strong>명확한 상승 신호 없이 중단계 박스권에서 방향성을 모색 중이므로, 추가 모멘텀 확인까지 현 포지션 유지가 적절함.</strong></div>
   </div>
 
   <hr class="divider">
@@ -435,6 +435,7 @@ table td:not(:first-child) { text-align: right; }
   <div class="card">
     <div class="card-title" style="margin-bottom:8px;">📡 기술적 지표 (자동)</div>
     <div class="signal-row"><span class="signal-name">RSI (14주)</span><span class="badge badge-b" id="ind-rsi" data-sg="tech">RSI 58.2 — 중립</span></div><div class="signal-row"><span class="signal-name">이평선 배열</span><span class="badge badge-y" id="ind-ma" data-sg="tech">혼조</span></div><div class="signal-row"><span class="signal-name">단기 모멘텀</span><span class="badge badge-y" id="ind-mom" data-sg="tech">▲ 0.6% (4주 변화)</span></div><div class="signal-row"><span class="signal-name">변동성</span><span class="badge badge-y" id="ind-vol" data-sg="tech">주간 ±1.06% — 보통</span></div><div class="signal-row"><span class="signal-name">52주 가격 위치</span><span class="badge badge-g" id="ind-pos" data-sg="tech">52주 고점 대비 -9.4% / 저점 대비 +5.0%</span></div><div class="signal-row"><span class="signal-name">NIFTY 밸류에이션</span><span class="badge badge-b" id="ind-pe" data-sg="tech">P/E 20.4 — 적정 수준</span></div><div class="signal-row"><span class="signal-name">손절선 거리</span><span class="badge badge-y" id="ind-sl" data-sg="tech">손절선까지 +3.7% — 주의</span></div>
+    <div style="margin-top:8px;font-size:11px;color:var(--text3);">* RSI·이평선·모멘텀·변동성·52주 위치는 열 때마다 실시간 계산 / P/E·손절선 거리는 업데이트.py 기준</div>
   </div>
     <div class="card" style="margin-top:-4px;">
     <div class="card-title" style="margin-bottom:8px;">🌏 매크로 신호 <span style="font-size:11px;font-weight:400;color:var(--text3);">— 업데이트 실행 시 갱신</span></div>
@@ -457,20 +458,21 @@ table td:not(:first-child) { text-align: right; }
     </div>
     <div class="signal-row">
       <span class="signal-name">브렌트유<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span>
-      <span class="badge badge-y" id="ind-crude" data-sg="macro">$82.8 보통</span>
+      <span class="badge badge-y" id="ind-crude" data-sg="macro">$82.5 보통</span>
     </div>
-    <div class="signal-row" title=" DII buying lifts markets as FII selling slows |  Record foreign outflows cap India stock rally in 2025; selling may ease next year |  FII Inflows vs. Outflows: Understanding Market Sentiment for AMEX:SPY by GlobalWolfStreet"><span class="signal-name">FII 외국인 자금<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span><span class="badge badge-y" id="ind-fii" data-sg="news">매도 완화 중, 연초 약세 지속</span></div>
-    <div class="signal-row" title=" DIIs raised stake in these 34 stocks for 8 consecutive quarters; full list |  Growing Power of India’s DIIs in Indian Equity Markets |  What Are FII and DII In Indian Stock Market?"><span class="signal-name">DII 국내기관 자금<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span><span class="badge badge-g" id="ind-dii" data-sg="news">강한 매수, 8분기 연속 증가</span></div>
-    <div class="signal-row" title=" Iran war puts RBI in razor-edge policy bind over inflation, growth and rupee |  India's cenbank cuts growth outlook, raises inflation forecast as it keeps rates steady at 5.25% |  India Rate-Hike Bets Build as Pricey Oil, Weak Rupee Stoke Inflation Risks"><span class="signal-name">RBI 금리<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span><span class="badge badge-y" id="ind-rbi" data-sg="news">기준금리 동결, 인플레 상향 조정</span></div>
-    <div class="signal-row" title=" Manufacturing drags down India's private sector activity in May: Flash PMI |  PMI watch: India's services growth eases in February as demand softens, costs rise |  Private Sector Growth Hits 10-month Low In December"><span class="signal-name">인도 PMI<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span><span class="badge badge-r" id="ind-pmi" data-sg="news">제조업 악화, 5월 저점</span></div>
-    <div class="signal-row" title=" Retail inflation at 16-month high of 3.9% as food items get dearer |  Consumer inflation rises to 3.93% in May, higher costs from West Asia war get passed on to households |  Inflation heat returns in May on climbing food prices"><span class="signal-name">인도 CPI<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span><span class="badge badge-r" id="ind-cpi" data-sg="news">16개월 고점 3.9%, 식료품 상승</span></div>
-    <div class="signal-row" title=" India-US trade deal can be finalised after tariff probe concludes, official says |  Shifting trade relations: India-US trade ties are more strategically balanced |  White House confirms temporary 10 per cent tariff for India after US Supreme Court ruling | Akashvani News"><span class="signal-name">미-인도 무역<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span><span class="badge badge-y" id="ind-trade" data-sg="news">임시 10% 관세, 협상 진행 중</span></div>
-    <div class="signal-row" title=" ‘The Old Game Is Back’: Oil Is a Potent Geopolitical Tool Again |  How to understand the Iran war market swings: A geopolitical put option |  How is the conflict in the Middle East affecting developing economies?"><span class="signal-name">중동 정세<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span><span class="badge badge-r" id="ind-mideast" data-sg="news">이란 전쟁, 유가·루피 악영향</span></div>
+    <div class="signal-row" title=" DII buying lifts markets as FII selling slows |  Record foreign outflows cap India stock rally in 2025; selling may ease next year |  FII Inflows vs. Outflows: Understanding Market Sentiment for AMEX:SPY by GlobalWolfStreet"><span class="signal-name">FII 외국인 자금<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span><span class="badge badge-y" id="ind-fii" data-sg="news">매도 둔화 신호, 회복 기대</span></div>
+    <div class="signal-row" title=" DIIs raised stake in these 34 stocks for 8 consecutive quarters; full list |  Growing Power of India’s DIIs in Indian Equity Markets |  What Are FII and DII In Indian Stock Market?"><span class="signal-name">DII 국내기관 자금<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span><span class="badge badge-g" id="ind-dii" data-sg="news">강한 매수로 시장 반등 주도</span></div>
+    <div class="signal-row" title=" Iran war puts RBI in razor-edge policy bind over inflation, growth and rupee |  India's cenbank cuts growth outlook, raises inflation forecast as it keeps rates steady at 5.25% |  India Rate-Hike Bets Build as Pricey Oil, Weak Rupee Stoke Inflation Risks"><span class="signal-name">RBI 금리<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span><span class="badge badge-y" id="ind-rbi" data-sg="news">금리 유지, 인상 압박 증가</span></div>
+    <div class="signal-row" title=" Manufacturing drags down India's private sector activity in May: Flash PMI |  PMI watch: India's services growth eases in February as demand softens, costs rise |  Private Sector Growth Hits 10-month Low In December"><span class="signal-name">인도 PMI<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span><span class="badge badge-r" id="ind-pmi" data-sg="news">제조업 부진, 성장 둔화</span></div>
+    <div class="signal-row" title=" Retail inflation at 16-month high of 3.9% as food items get dearer |  Consumer inflation rises to 3.93% in May, higher costs from West Asia war get passed on to households |  Inflation heat returns in May on climbing food prices"><span class="signal-name">인도 CPI<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span><span class="badge badge-r" id="ind-cpi" data-sg="news">16개월 고점 3.9%, 물가 상승</span></div>
+    <div class="signal-row" title=" India-US trade deal can be finalised after tariff probe concludes, official says |  Shifting trade relations: India-US trade ties are more strategically balanced |  White House confirms temporary 10 per cent tariff for India after US Supreme Court ruling | Akashvani News"><span class="signal-name">미-인도 무역<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span><span class="badge badge-y" id="ind-trade" data-sg="news">협상 진행, 잠정 관세 부담</span></div>
+    <div class="signal-row" title=" ‘The Old Game Is Back’: Oil Is a Potent Geopolitical Tool Again |  How to understand the Iran war market swings: A geopolitical put option |  How is the conflict in the Middle East affecting developing economies?"><span class="signal-name">중동 정세<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span><span class="badge badge-r" id="ind-mideast" data-sg="news">유가 상승, 인플레 악화 위험</span></div>
     <div class="signal-row">
       <span class="signal-name">미국 연준 금리<span style="font-size:10px;color:var(--text3);margin-left:4px;">자동</span></span>
-      <span class="badge badge-b" id="ind-fed" data-sg="news">신임 의장, 금리 유지 기조</span>
+      <span class="badge badge-b" id="ind-fed" data-sg="news">금리 유지, 신임 위원 첫 회의</span>
     </div>
     <div style="margin-top:10px;font-size:11px;color:var(--text3);">* 뉴스 항목은 마우스를 올리면 원문 헤드라인을 볼 수 있어요</div>
+    <div id="news-live-note" style="margin-top:4px;font-size:11px;color:var(--text3);"></div>
   </div>
 
   <hr class="divider">
@@ -478,20 +480,20 @@ table td:not(:first-child) { text-align: right; }
   <div class="section-label">액션 가이드</div>
   
   <div class="action action-hold" id="ag-now">
-    <div class="action-title" id="ag-now-title">📌 지금 — 혼조 신호 속 추가 매수 대기</div>
-    <div class="action-desc" id="ag-now-desc">NIFTY50이 기술적 저항(23,853)을 형성 중이며 RSI 58.2(과매도 아님)와 이평 혼조로 방향성이 불명확한 상황에서, FII 매도 완화와 FOMC 결정(D-3) 대기로 현 포지션 유지가 적절합니다.</div>
+    <div class="action-title" id="ag-now-title">📌 지금 — 혼조 지표 속 추가투자 타이밍 모색</div>
+    <div class="action-desc" id="ag-now-desc">NIFTY50 기술적 혼조(RSI 58.2, 이평 배열 불안)와 매크로 악재(인도 CPI 16개월 고점 3.9%, RBI 인상 압박)가 교차하지만, FII 매도 둔화와 4주 모멘텀 양수로 회복 신호 포착되어 현재 포지션 유지하며 단계적 진입 기회 대기.</div>
   </div>
   <div class="action action-buy" id="ag-buy1">
     <div class="action-title" id="ag-buy1-title">🟢 1차 매수 조건</div>
-    <div class="action-desc" id="ag-buy1-desc">FOMC 금리 유지 확정 및 NIFTY50이 23,500 이상 회복 시 2,800만원 중 1,400만원을 760원대에서 추가 매수하세요.</div>
+    <div class="action-desc" id="ag-buy1-desc">FOMC 결과(D-3) 이후 위험자산 선호 회복 신호 + NIFTY50 24,100 이상 돌파 시 추가투자 2,800만원 중 1,400만원 진입(단가 780원대 목표).</div>
   </div>
   <div class="action action-buy" id="ag-buy2">
     <div class="action-title" id="ag-buy2-title">🟢 2차 매수 조건</div>
-    <div class="action-desc" id="ag-buy2-desc">FII 자금흐름이 순매수로 전환되고 RSI가 50 이상 유지되며 NIFTY50이 24,200 이상 상승 시 나머지 1,400만원을 750원대에서 분할 매수하세요.</div>
+    <div class="action-desc" id="ag-buy2-desc">RSI 50 이하 조정 + NIFTY50 23,500 지지 재확인 + FII 자금흐름 명확한 순유입 전환 시 남은 1,400만원 진입(단가 770원대 이하 목표).</div>
   </div>
   <div class="action action-sell" id="ag-sell">
     <div class="action-title" id="ag-sell-title">🔴 손절 조건</div>
-    <div class="action-desc" id="ag-sell-desc">NIFTY50이 23,200 이하로 하락하거나 기준가가 718원(손절 기준)을 하향 돌파 시 즉시 손절 실행하세요.</div>
+    <div class="action-desc" id="ag-sell-desc">기준가 718원(-8.7%) 이하 하락 또는 NIFTY50 23,000 붕괴 + RBI 긴급 인상 시그널 동시 발생 시 즉시 손절 실행.</div>
   </div>
 
   <hr class="divider">
@@ -530,7 +532,7 @@ table td:not(:first-child) { text-align: right; }
   </div>
 
   <div class="footer">
-    마지막 업데이트: 2026.06.15 23:14
+    마지막 업데이트: 2026.06.15 23:40
     <br><br>
     <button onclick="location.reload(true)" style="margin-top:4px;padding:8px 24px;border-radius:20px;border:0.5px solid var(--border);background:var(--card-bg);color:var(--text);font-size:13px;font-weight:500;cursor:pointer;">🔄 새로고침</button>
   </div>
@@ -840,12 +842,12 @@ async function askAI() {
 [실시간 시장 데이터]
 - NIFTY50: ${_liveN} ${_livePct}
 - USD/INR: ${_liveInrF} / India VIX: ${_liveVixF} / US VIX: 16.41
-- 브렌트유: $82.8 / NIFTY P/E: 20.4
+- 브렌트유: $82.5 / NIFTY P/E: 20.4
 - 종합신호: ${_sc2}
-- FII: 매도 완화 중, 연초 약세 지속 / DII: 강한 매수, 8분기 연속 증가
-- RBI 금리: 기준금리 동결, 인플레 상향 조정 / 미국 연준: 신임 의장, 금리 유지 기조
-- 인도 CPI: 16개월 고점 3.9%, 식료품 상승 / PMI: 제조업 악화, 5월 저점
-- 미-인도 무역: 임시 10% 관세, 협상 진행 중 / 중동: 이란 전쟁, 유가·루피 악영향
+- FII: 매도 둔화 신호, 회복 기대 / DII: 강한 매수로 시장 반등 주도
+- RBI 금리: 금리 유지, 인상 압박 증가 / 미국 연준: 금리 유지, 신임 위원 첫 회의
+- 인도 CPI: 16개월 고점 3.9%, 물가 상승 / PMI: 제조업 부진, 성장 둔화
+- 미-인도 무역: 협상 진행, 잠정 관세 부담 / 중동: 유가 상승, 인플레 악화 위험
 
 3~5문장, 한국어, 마지막에 "이 답변은 참고용입니다" 짧게 명시.`;
 
@@ -1014,5 +1016,6 @@ function recalcScorecard() {
 }
 recalcScorecard();
 </script>
+<script src="실시간.js"></script>
 </body>
 </html>
