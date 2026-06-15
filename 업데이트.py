@@ -1023,39 +1023,39 @@ def build_html(nifty, sensex, metrics, api_key, updated_at, nifty_analysis, sens
         now_type = ag.get("now", {}).get("type", "hold")
         now_cls  = {"hold": "action-hold", "buy": "action-buy", "sell": "action-sell"}.get(now_type, "action-hold")
         action_guide_html = f"""
-  <div class="action {now_cls}">
-    <div class="action-title">{ag['now']['title']}</div>
-    <div class="action-desc">{ag['now']['desc']}</div>
+  <div class="action {now_cls}" id="ag-now">
+    <div class="action-title" id="ag-now-title">{ag['now']['title']}</div>
+    <div class="action-desc" id="ag-now-desc">{ag['now']['desc']}</div>
   </div>
-  <div class="action action-buy">
-    <div class="action-title">{ag['buy1']['title']}</div>
-    <div class="action-desc">{ag['buy1']['desc']}</div>
+  <div class="action action-buy" id="ag-buy1">
+    <div class="action-title" id="ag-buy1-title">{ag['buy1']['title']}</div>
+    <div class="action-desc" id="ag-buy1-desc">{ag['buy1']['desc']}</div>
   </div>
-  <div class="action action-buy">
-    <div class="action-title">{ag['buy2']['title']}</div>
-    <div class="action-desc">{ag['buy2']['desc']}</div>
+  <div class="action action-buy" id="ag-buy2">
+    <div class="action-title" id="ag-buy2-title">{ag['buy2']['title']}</div>
+    <div class="action-desc" id="ag-buy2-desc">{ag['buy2']['desc']}</div>
   </div>
-  <div class="action action-sell">
-    <div class="action-title">{ag['sell']['title']}</div>
-    <div class="action-desc">{ag['sell']['desc']}</div>
+  <div class="action action-sell" id="ag-sell">
+    <div class="action-title" id="ag-sell-title">{ag['sell']['title']}</div>
+    <div class="action-desc" id="ag-sell-desc">{ag['sell']['desc']}</div>
   </div>"""
     else:
         action_guide_html = f"""
-  <div class="action action-hold">
-    <div class="action-title">📌 지금 — 보유 유지</div>
-    <div class="action-desc">데이터 수집 중입니다. 다시 열어주세요.</div>
+  <div class="action action-hold" id="ag-now">
+    <div class="action-title" id="ag-now-title">📌 지금 — 보유 유지</div>
+    <div class="action-desc" id="ag-now-desc">데이터 수집 중입니다. 다시 열어주세요.</div>
   </div>
-  <div class="action action-buy">
-    <div class="action-title">🟢 1차 매수 조건</div>
-    <div class="action-desc">NIFTY50 23,000 지지 유지 + FII 순매수 전환 확인 시 → {metrics['add_invest_man']//2:,}만원 투입</div>
+  <div class="action action-buy" id="ag-buy1">
+    <div class="action-title" id="ag-buy1-title">🟢 1차 매수 조건</div>
+    <div class="action-desc" id="ag-buy1-desc">NIFTY50 23,000 지지 유지 + FII 순매수 전환 확인 시 → {metrics['add_invest_man']//2:,}만원 투입</div>
   </div>
-  <div class="action action-buy">
-    <div class="action-title">🟢 2차 매수 조건</div>
-    <div class="action-desc">NIFTY50 24,000 회복 + 추세 확인 시 → {metrics['add_invest_man']//2:,}만원 추가</div>
+  <div class="action action-buy" id="ag-buy2">
+    <div class="action-title" id="ag-buy2-title">🟢 2차 매수 조건</div>
+    <div class="action-desc" id="ag-buy2-desc">NIFTY50 24,000 회복 + 추세 확인 시 → {metrics['add_invest_man']//2:,}만원 추가</div>
   </div>
-  <div class="action action-sell">
-    <div class="action-title">🔴 손절 조건</div>
-    <div class="action-desc">펀드 기준가 {metrics['sl_price']}원 이탈 OR NIFTY50 23,000 붕괴 시 → 전량 매도 검토</div>
+  <div class="action action-sell" id="ag-sell">
+    <div class="action-title" id="ag-sell-title">🔴 손절 조건</div>
+    <div class="action-desc" id="ag-sell-desc">펀드 기준가 {metrics['sl_price']}원 이탈 OR NIFTY50 23,000 붕괴 시 → 전량 매도 검토</div>
   </div>"""
 
     # ── 목표수익률 계산기 ────────────────────────────────────────
@@ -1661,12 +1661,14 @@ document.getElementById('ai-q').addEventListener('keydown', e => {{
 window._charts = {{}};
 const PDATA_chartNifty = {nifty_periods_js};
 const PDATA_chartSensex = {sensex_periods_js};
-window._charts['chartNifty'] = {{inst: initChart('chartNifty', PDATA_chartNifty, 'd1'), data: PDATA_chartNifty}};
-window._charts['chartSensex'] = {{inst: initChart('chartSensex', PDATA_chartSensex, 'd1'), data: PDATA_chartSensex}};
-
-// 기준가 차트 (이평선 포함)
-const PDATA_chartNav = {nav_periods_js};
-window._charts['chartNav'] = {{inst: initChart('chartNav', PDATA_chartNav, 'yr1'), data: PDATA_chartNav}};
+try {{
+  window._charts['chartNifty'] = {{inst: initChart('chartNifty', PDATA_chartNifty, 'd1'), data: PDATA_chartNifty}};
+  window._charts['chartSensex'] = {{inst: initChart('chartSensex', PDATA_chartSensex, 'd1'), data: PDATA_chartSensex}};
+  
+  // 기준가 차트 (이평선 포함)
+  const PDATA_chartNav = {nav_periods_js};
+  window._charts['chartNav'] = {{inst: initChart('chartNav', PDATA_chartNav, 'yr1'), data: PDATA_chartNav}};
+}} catch(e) {{ console.warn('차트 초기화 실패:', e); }}
 
 function switchNavChart(key, el) {{
   document.querySelectorAll('#nav-tabs .period-tab').forEach(t => t.classList.remove('active'));
@@ -2161,7 +2163,7 @@ async function updateActionGuide(data) {
     html = html.replace('function getKey()', _td_js + '\nfunction getKey()', 1)
     html = html.replace(
         "window.addEventListener('DOMContentLoaded', function() {\n  if (!getKey())",
-        "window.addEventListener('DOMContentLoaded', function() {\n  initTDKeyUI();\n  fetchLiveData().then(data => { recalcScorecard(); updateActionGuide(data); });\n  setInterval(() => fetchLiveData().then(() => recalcScorecard()), 5*60*1000);\n  if (!getKey())",
+        "window.addEventListener('DOMContentLoaded', function() {\n  initTDKeyUI();\n  recalcScorecard();\n  fetchLiveData()\n    .then(data => { recalcScorecard(); updateActionGuide(data); })\n    .catch(() => recalcScorecard());\n  setInterval(() => fetchLiveData()\n    .then(data => { recalcScorecard(); updateActionGuide(data); })\n    .catch(() => recalcScorecard()), 5*60*1000);\n  if (!getKey())",
         1
     )
 
