@@ -1821,7 +1821,7 @@ def kakao_send(access_token, text):
     print("✅ 카카오 알림 전송 완료")
 
 
-def generate_ai_commentary(nifty, metrics, indicators, macro, api_key):
+def generate_ai_commentary(nifty, metrics, indicators, macro, api_key, signal_emoji=None):
     if not api_key:
         return ""
     from datetime import timezone, timedelta
@@ -1867,9 +1867,11 @@ def generate_ai_commentary(nifty, metrics, indicators, macro, api_key):
         comment = result["content"][0]["text"].strip()
         if "특이사항 없음" in comment:
             return ""
+        sc_line = f"{signal_emoji}\n" if signal_emoji else ""
         msg = (f"📊 인도펀드 {now_str}\n"
                f"NIFTY {nifty['current']:,} ({nifty['change_pct']:+}%)\n"
                f"기준가 {nav:.0f}원 / 손익 {pnl:+.1f}%\n"
+               f"{sc_line}"
                f"💬 {comment}")
         return msg
     except Exception as e:
@@ -2153,7 +2155,12 @@ async function updateActionGuide(data) {
             access_token = kakao_refresh_access_token(rest_api_key, refresh_token, client_secret or None)
             print("✅ 카카오 토큰 갱신 완료")
 
-            commentary = generate_ai_commentary(nifty, metrics, nifty_ind, macro, api_key)
+            import re as _re
+            _html_path = os.path.join(os.path.dirname(__file__), "인도펀드_대시보드.html")
+            _html_txt = open(_html_path, encoding="utf-8").read()
+            _em = _re.search(r'id="sc-emoji"[^>]*>([^<]+)<', _html_txt)
+            signal_emoji = _em.group(1).strip() if _em else None
+            commentary = generate_ai_commentary(nifty, metrics, nifty_ind, macro, api_key, signal_emoji=signal_emoji)
             if commentary:
                 kakao_send(access_token, commentary)
                 print("✅ AI 코멘트 발송 완료")

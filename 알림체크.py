@@ -7,6 +7,7 @@
 
 import json
 import os
+import re
 import urllib.request
 import urllib.parse
 from datetime import datetime, timezone, timedelta
@@ -81,6 +82,20 @@ def kakao_send(access_token, text):
     if result.get("result_code") != 0:
         raise RuntimeError(f"메시지 전송 실패: {result}")
     print("✅ 카카오 알림 전송 완료")
+
+
+def read_signal_from_html():
+    html_path = os.path.join(os.path.dirname(__file__), "인도펀드_대시보드.html")
+    try:
+        with open(html_path, "r", encoding="utf-8") as f:
+            html = f.read()
+        emoji_m = re.search(r'id="sc-emoji"[^>]*>([^<]+)<', html)
+        desc_m  = re.search(r'id="sc-desc"[^>]*>([^<]+)<', html)
+        emoji = emoji_m.group(1).strip() if emoji_m else None
+        desc  = desc_m.group(1).strip()  if desc_m  else None
+        return emoji, desc
+    except Exception:
+        return None, None
 
 
 def load_config():
@@ -268,9 +283,20 @@ def main():
     data = fetch_india_data()
     print(f"NIFTY: {data['current']:,} | RSI: {data['rsi']} | 기준가: {cfg.get('현재기준가', '?')}원")
 
+    # 종합 신호 (HTML에서 읽어서 매일 1회 알림)
+    signal_emoji, signal_desc = read_signal_from_html()
+    if signal_emoji and not already_sent(state, today, "종합신호"):
+        msg = f"📊 [인도펀드] 오늘 종합 신호\n{signal_emoji}"
+        if signal_desc:
+            msg += f"\n\n{signal_desc[:120]}"
+        kakao_send(access_token, msg)
+        mark_sent(state, today, "종합신호")
+        save_state(state)
+        print(f"  → 종합신호: {signal_emoji}")
+
     alerts = check_india_conditions(cfg, data)
     if not alerts:
-        print("✅ 알림 조건 없음")
+        print("✅ 개별 알림 조건 없음")
         return
 
     priority = {"손절": 0, "매수핵심": 1, "매도": 2, "이벤트당일": 3, "이벤트예고": 4, "매수참고": 5}
