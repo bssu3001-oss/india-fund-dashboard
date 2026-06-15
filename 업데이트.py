@@ -2182,7 +2182,8 @@ async function updateActionGuide(data) {
     refresh_token = os.environ.get("KAKAO_REFRESH_TOKEN", "").strip()
     client_secret = os.environ.get("KAKAO_CLIENT_SECRET", "").strip()
 
-    if rest_api_key and refresh_token:
+    is_scheduled = os.environ.get("GITHUB_EVENT_NAME", "schedule") == "schedule"
+    if rest_api_key and refresh_token and is_scheduled:
         try:
             access_token = kakao_refresh_access_token(rest_api_key, refresh_token, client_secret or None)
             print("✅ 카카오 토큰 갱신 완료")
