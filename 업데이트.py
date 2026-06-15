@@ -1490,6 +1490,7 @@ table td:not(:first-child) {{ text-align: right; }}
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>window.Chart||document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"><\/script>')</script>
 <script>
 const isDark = matchMedia('(prefers-color-scheme: dark)').matches;
 const tC = isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.4)';
@@ -1668,7 +1669,7 @@ try {{
   // 기준가 차트 (이평선 포함)
   const PDATA_chartNav = {nav_periods_js};
   window._charts['chartNav'] = {{inst: initChart('chartNav', PDATA_chartNav, 'yr1'), data: PDATA_chartNav}};
-}} catch(e) {{ console.warn('차트 초기화 실패:', e); }}
+}} catch(e) {{ console.warn('차트 초기화 실패:', e); document.querySelectorAll('.chart-wrap').forEach(el=>{{if(!el.querySelector('canvas').dataset.done)el.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text2);font-size:12px;">⚠️ 차트 로딩 실패 (새로고침 해보세요)</div>'}});}}
 
 function switchNavChart(key, el) {{
   document.querySelectorAll('#nav-tabs .period-tab').forEach(t => t.classList.remove('active'));
