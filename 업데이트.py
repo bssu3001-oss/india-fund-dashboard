@@ -700,8 +700,8 @@ def index_section_html(data, chart_analysis, name, chart_id, period_prefix, sl=N
     return f"""
   <div class="nifty-header">
     <div class="nifty-name">{name}</div>
-    <div class="nifty-price {chg_class}">{data["current"]:,}</div>
-    <div class="nifty-change {chg_class}">{chg_sign} {chg_val} &nbsp;({'+' if chg>=0 else ''}{chg}%)</div>
+    <div class="nifty-price {chg_class}" id="{period_prefix}-live-price">{data["current"]:,}</div>
+    <div class="nifty-change {chg_class}" id="{period_prefix}-live-change">{chg_sign} {chg_val} &nbsp;({'+' if chg>=0 else ''}{chg}%)</div>
     <div class="ohlc-row">
       <div class="ohlc-item"><div class="ohlc-label">시가</div><div class="ohlc-val">{data["open"]:,}</div></div>
       <div class="ohlc-item"><div class="ohlc-label">고가</div><div class="ohlc-val up">{data["high"]:,}</div></div>
@@ -2023,6 +2023,7 @@ async function fetchYahooProxy(ticker) {
 async function fetchLiveData() {
   const tickers = [
     { sym: 'NIFTY50', yf: '%5ENSEI' },
+    { sym: 'SENSEX',  yf: '%5EBSESN' },
     { sym: 'USD/INR', yf: 'USDINR%3DX' },
     { sym: 'INDIA VIX', yf: '%5EINDIAVIX' },
     { sym: 'VIX', yf: '%5EVIX' },
@@ -2033,10 +2034,24 @@ async function fetchLiveData() {
   tickers.forEach((t, i) => { if (results[i]) data[t.sym] = results[i]; });
 
   const nifty = data['NIFTY50'];
+  const sensex = data['SENSEX'];
   const usdinr = data['USD/INR'];
   const ivix = data['INDIA VIX'];
   const vix = data['VIX'];
   const brent = data['BCO/USD'];
+
+  function updateMainPrice(prefix, priceObj) {
+    if (!priceObj) return;
+    const chgVal = priceObj.price - priceObj.prev;
+    const chgPct = (chgVal / priceObj.prev * 100).toFixed(2);
+    const isUp = chgVal >= 0;
+    const pEl = document.getElementById(prefix + '-live-price');
+    const cEl = document.getElementById(prefix + '-live-change');
+    if (pEl) { pEl.textContent = Math.round(priceObj.price).toLocaleString('ko-KR'); pEl.className = 'nifty-price ' + (isUp ? 'up' : 'down'); }
+    if (cEl) { cEl.textContent = `${isUp?'▲':'▼'} ${Math.abs(chgVal).toFixed(0)}  (${isUp?'+':''}${chgPct}%)`; cEl.className = 'nifty-change ' + (isUp ? 'up' : 'down'); }
+  }
+  updateMainPrice('nifty', nifty);
+  updateMainPrice('sensex', sensex);
 
   if (nifty) {
     const cur = Math.round(nifty.price).toLocaleString('ko-KR');
@@ -2120,7 +2135,7 @@ async function updateActionGuide(data) {
     html = html.replace('function getKey()', _td_js + '\nfunction getKey()', 1)
     html = html.replace(
         "window.addEventListener('DOMContentLoaded', function() {\n  if (!getKey())",
-        "window.addEventListener('DOMContentLoaded', function() {\n  initTDKeyUI();\n  fetchLiveData().then(data => { updateActionGuide(data); recalcScorecard(); });\n  if (!getKey())",
+        "window.addEventListener('DOMContentLoaded', function() {\n  initTDKeyUI();\n  fetchLiveData().then(data => { updateActionGuide(data); recalcScorecard(); });\n  setInterval(() => fetchLiveData().then(() => recalcScorecard()), 5*60*1000);\n  if (!getKey())",
         1
     )
 
